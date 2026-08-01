@@ -100,10 +100,11 @@
                 </tbody>
             </table>
 
-            <div class="flex justify-between items-end mt-12">
+            <div class="flex justify-between items-end mt-8">
                 <div class="text-center">
-                    <p class="text-xs text-slate-500 mb-12">Penerima (Finance)</p>
-                    <p class="font-bold text-slate-800 border-t border-slate-300 pt-2 px-6 inline-block">AFFA Swimming</p>
+                    <p class="text-xs text-slate-500 mb-2">Penerima</p>
+                    <img src="{{ asset('signature.png') }}" alt="Ttd" class="h-16 mx-auto mb-2 object-contain" onerror="this.style.display='none'">
+                    <p class="font-bold text-slate-800 border-t border-slate-300 pt-2 px-6 inline-block">Fatimah Nurhafidah<br> AFFA SWIMMING</p>
                 </div>
                 <div class="text-center">
                     <p class="text-xs text-slate-500 mb-12">Penyetor</p>
