@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'name' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'in:Laki-laki,Perempuan'],
             'birth_place_date' => ['nullable', 'string', 'max:255'],
             'age' => ['nullable', 'integer', 'min:1'],
             'school' => ['nullable', 'string', 'max:255'],
@@ -50,6 +51,7 @@ class RegisteredUserController extends Controller
         \App\Models\Student::create([
             'user_id' => $user->id,
             'name' => $request->name,
+            'gender' => $request->gender,
             'birth_place_date' => $request->birth_place_date,
             'age' => $request->age,
             'school' => $request->school,

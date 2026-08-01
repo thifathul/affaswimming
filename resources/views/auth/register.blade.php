@@ -65,6 +65,20 @@
                     <x-input-error :messages="$errors->get('name')" class="mt-2 text-xs text-red-400" />
                 </div>
 
+                <!-- Gender / Jenis Kelamin -->
+                <div>
+                    <x-input-label for="gender" :value="__('Jenis Kelamin')" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-300" />
+                    <div class="input-group">
+                        <i class="fa-solid fa-venus-mars"></i>
+                        <select id="gender" name="gender" class="block w-full" required>
+                            <option value="" disabled selected>Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki" {{ old('gender') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                            <option value="Perempuan" {{ old('gender') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                        </select>
+                    </div>
+                    <x-input-error :messages="$errors->get('gender')" class="mt-2 text-xs text-red-400" />
+                </div>
+
                 <!-- Tempat, Tanggal Lahir -->
                 <div>
                     <x-input-label for="birth_place_date" :value="__('Tempat, Tanggal Lahir')" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-300" />

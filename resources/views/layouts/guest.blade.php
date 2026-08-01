@@ -128,8 +128,8 @@
                 font-size: 1.1rem;
             }
 
-            /* Target text inputs */
-            input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
+            /* Target text inputs and select */
+            input[type="email"], input[type="password"], input[type="text"], input[type="number"], select {
                 background: rgba(5, 11, 20, 0.8) !important;
                 border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
                 color: #f8fafc !important;
@@ -141,12 +141,19 @@
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
                 width: 100% !important;
+                appearance: none;
+                -webkit-appearance: none;
             }
 
-            input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus {
+            input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
                 border-color: #D4AF37 !important;
                 box-shadow: 0 0 15px rgba(212, 175, 55, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
                 background: rgba(5, 11, 20, 0.95) !important;
+            }
+            
+            select option {
+                background-color: #050b14;
+                color: #f8fafc;
             }
 
             /* Icon focus effect */

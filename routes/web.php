@@ -108,6 +108,33 @@ Route::middleware(['auth', 'role:master'])->group(function () {
         return view('master.dashboard', compact('totalCash', 'totalExpenses', 'activeStudents', 'packageDistribution', 'operationalExpenses', 'coachSalaryExpenses'));
     })->name('master.dashboard');
 
+
+    Route::patch('positions/{position}/toggle-status', [\App\Http\Controllers\Master\PositionController::class, 'toggleStatus'])->name('master.positions.toggle-status');
+    Route::resource('positions', \App\Http\Controllers\Master\PositionController::class)->names([
+        'index' => 'master.positions.index',
+        'create' => 'master.positions.create',
+        'store' => 'master.positions.store',
+        'edit' => 'master.positions.edit',
+        'update' => 'master.positions.update',
+        'destroy' => 'master.positions.destroy',
+    ]);
+
+    // Moved to shared group below: articles, teams, students, swim-classes
+
+    // Master Settings
+    Route::get('/master/settings/landing', [\App\Http\Controllers\Master\LandingPageController::class, 'edit'])->name('master.settings.landing');
+    Route::put('/master/settings/landing', [\App\Http\Controllers\Master\LandingPageController::class, 'update'])->name('master.settings.landing.update');
+    Route::get('/master/settings/pages', [\App\Http\Controllers\Master\PageSettingController::class, 'edit'])->name('master.settings.pages');
+    Route::put('/master/settings/pages', [\App\Http\Controllers\Master\PageSettingController::class, 'update'])->name('master.settings.pages.update');
+
+    // Schedule Deletions
+    Route::get('/master/schedule-deletions', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'index'])->name('master.schedule-deletions.index');
+    Route::post('/master/schedule-deletions/{scheduleRequest}/approve', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'approve'])->name('master.schedule-deletions.approve');
+    Route::post('/master/schedule-deletions/{scheduleRequest}/reject', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'reject'])->name('master.schedule-deletions.reject');
+});
+
+// Shared Master & Admin Group
+Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::get('/master/users', function () {
         $users = \App\Models\User::where('status', '!=', 'pending')->orWhereNull('status')->get();
         return view('master.users', compact('users'));
@@ -177,32 +204,6 @@ Route::middleware(['auth', 'role:master'])->group(function () {
         return redirect()->route('master.users')->with('success', 'Pengguna berhasil dihapus!');
     })->name('master.users.destroy');
 
-    Route::patch('positions/{position}/toggle-status', [\App\Http\Controllers\Master\PositionController::class, 'toggleStatus'])->name('master.positions.toggle-status');
-    Route::resource('positions', \App\Http\Controllers\Master\PositionController::class)->names([
-        'index' => 'master.positions.index',
-        'create' => 'master.positions.create',
-        'store' => 'master.positions.store',
-        'edit' => 'master.positions.edit',
-        'update' => 'master.positions.update',
-        'destroy' => 'master.positions.destroy',
-    ]);
-
-    // Moved to shared group below: articles, teams, students, swim-classes
-
-    // Master Settings
-    Route::get('/master/settings/landing', [\App\Http\Controllers\Master\LandingPageController::class, 'edit'])->name('master.settings.landing');
-    Route::put('/master/settings/landing', [\App\Http\Controllers\Master\LandingPageController::class, 'update'])->name('master.settings.landing.update');
-    Route::get('/master/settings/pages', [\App\Http\Controllers\Master\PageSettingController::class, 'edit'])->name('master.settings.pages');
-    Route::put('/master/settings/pages', [\App\Http\Controllers\Master\PageSettingController::class, 'update'])->name('master.settings.pages.update');
-
-    // Schedule Deletions
-    Route::get('/master/schedule-deletions', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'index'])->name('master.schedule-deletions.index');
-    Route::post('/master/schedule-deletions/{scheduleRequest}/approve', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'approve'])->name('master.schedule-deletions.approve');
-    Route::post('/master/schedule-deletions/{scheduleRequest}/reject', [\App\Http\Controllers\Master\ScheduleDeletionController::class, 'reject'])->name('master.schedule-deletions.reject');
-});
-
-// Shared Master & Admin Group
-Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::resource('articles', \App\Http\Controllers\Master\ArticleController::class)->names([
         'index' => 'master.articles.index',
         'create' => 'master.articles.create',

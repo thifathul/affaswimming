@@ -292,6 +292,9 @@
                             <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                                 <i class="fa-solid fa-table-columns"></i> Dashboard
                             </a>
+                            <a href="{{ route('master.users') }}" class="sidebar-link {{ request()->routeIs('master.users*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-users-gear"></i> Manajemen Pengguna
+                            </a>
                             <a href="{{ route('master.teams.index') }}" class="sidebar-link {{ request()->routeIs('master.teams*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-people-group"></i> Manajemen Tim
                             </a>
