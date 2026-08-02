@@ -107,9 +107,61 @@
                             </div>
                         @endif
                     </div>
-
+                    <div class="mt-12 pt-6 border-t border-slate-100">
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100"><i class="fa-regular fa-calendar-days mr-2 text-emerald-500"></i> Jadwal Latihan Anda</h4>
+                        
+                        @if(!$student)
+                            <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-6 text-center">
+                                <p class="text-sm text-amber-800 font-medium">Data murid belum terhubung.</p>
+                            </div>
+                        @elseif($schedules->isEmpty())
+                            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-6 text-center">
+                                <i class="fa-regular fa-calendar-xmark text-3xl text-emerald-300 mb-3"></i>
+                                <p class="text-sm text-emerald-800 font-medium">Belum ada jadwal latihan yang di-assign untuk Anda.</p>
+                                <p class="text-xs text-emerald-500 mt-1">Silakan tunggu Admin atau Pelatih untuk mengatur jadwal Anda.</p>
+                            </div>
+                        @else
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                @foreach($schedules as $schedule)
+                                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+                                        <div class="absolute top-0 right-0 w-1.5 h-full {{ $schedule->status === 'available' ? 'bg-emerald-400' : 'bg-blue-400' }}"></div>
+                                        <div class="p-5">
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
+                                                    {{ substr($schedule->day, 0, 3) }}
+                                                </div>
+                                                <div>
+                                                    <h5 class="font-bold text-slate-800 text-lg">{{ $schedule->day }}</h5>
+                                                    <p class="text-xs font-semibold text-blue-600">
+                                                        {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="space-y-2 mt-4 text-sm text-slate-600">
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-location-dot mt-1 text-slate-400 w-4 text-center"></i>
+                                                    <div>
+                                                        <span class="font-semibold text-slate-700">Lokasi Kolam:</span>
+                                                        <p>{{ $schedule->poolLocation ? $schedule->poolLocation->name : 'Belum ditentukan' }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fa-solid fa-person-chalkboard mt-1 text-slate-400 w-4 text-center"></i>
+                                                    <div>
+                                                        <span class="font-semibold text-slate-700">Pelatih:</span>
+                                                        <p>{{ $schedule->coach ? $schedule->coach->name : 'Belum ada pelatih' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                     <div class="mt-12 pt-6 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
-                        © 2026 SMK Pasundan 1 Bandung.
+                        © 2026 AFFA SWIMMING CLUB.
                     </div>
                 </div>
             </div>

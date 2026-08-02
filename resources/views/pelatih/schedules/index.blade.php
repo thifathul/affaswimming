@@ -148,6 +148,43 @@
                 </div>
             </div>
 
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100 mb-8">
+                <div class="p-6 border-b border-slate-100 bg-blue-50/50 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-bold text-blue-800">Jadwal Kosong Anda</h3>
+                        <p class="text-sm text-blue-600">Berikut adalah blok waktu ketersediaan (jadwal kosong) yang telah Anda daftarkan.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-slate-50/20">
+                    @forelse($availabilities as $avail)
+                        <div class="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow relative">
+                            <div class="bg-blue-50 text-blue-800 px-4 py-3 border-b border-blue-100 flex justify-between items-center">
+                                <span class="font-bold text-sm uppercase tracking-wide">{{ $avail->day }}</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-200 text-blue-800">
+                                    Blok Waktu
+                                </span>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center text-slate-700 font-medium">
+                                    <i class="fa-regular fa-clock mr-2 text-slate-400"></i>
+                                    {{ \Carbon\Carbon::parse($avail->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($avail->end_time)->format('H:i') }}
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2 text-center">
+                                    <span class="text-xs text-slate-400 italic">Menunggu admin mengatur sesi kelas pada jadwal ini.</span>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-span-full bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+                            <i class="fa-regular fa-calendar-plus text-4xl mb-3 text-slate-300"></i>
+                            <p>Anda belum menginput jadwal kosong.</p>
+                            <button onclick="openCreateModal()" class="mt-4 text-blue-600 font-medium hover:underline">Input Jadwal Sekarang</button>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100">
                 <div class="p-6 border-b border-slate-100 bg-slate-50/50">
                     <h3 class="text-lg font-bold text-slate-800">Keseluruhan Jadwal</h3>

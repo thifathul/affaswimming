@@ -22,6 +22,16 @@ class ScheduleController extends Controller
             $query->where('day', $request->day);
         }
 
+        if ($request->filled('pool_location_id')) {
+            $selectedLocation = \App\Models\PoolLocation::find($request->pool_location_id);
+            if ($selectedLocation) {
+                $locationIds = \App\Models\PoolLocation::where('name', $selectedLocation->name)->pluck('id');
+                $query->whereHas('schedules', function ($q) use ($locationIds) {
+                    $q->whereIn('pool_location_id', $locationIds);
+                });
+            }
+        }
+
         $availabilities = $query->orderByRaw("CASE day 
                 WHEN 'Senin' THEN 1 
                 WHEN 'Selasa' THEN 2 
@@ -67,10 +77,12 @@ class ScheduleController extends Controller
         }
 
         $coaches = \App\Models\User::where('role', 'pelatih')->get();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
         return view('admin.schedules.index', [
             'groupedSchedules' => $groupedSchedules->sortBy('coach_name')->values(),
-            'coaches' => $coaches
+            'coaches' => $coaches,
+            'poolLocations' => $poolLocations
         ]);
     }
 
@@ -88,7 +100,7 @@ class ScheduleController extends Controller
             ->get();
             
         $students = Student::where('status', 'aktif')->get();
-        $poolLocations = PoolLocation::all();
+        $poolLocations = PoolLocation::orderBy('name')->get()->unique('name');
         
         return view('admin.schedules.show', compact('coach', 'day', 'availabilities', 'schedules', 'students', 'poolLocations'));
     }
@@ -116,14 +128,24 @@ class ScheduleController extends Controller
             return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availStart.' - '.$availEnd.').');
         }
 
+        // Check gap from availability start time
+        $availStartCarbon = \Carbon\Carbon::parse($availability->start_time);
+        $newStartCarbon = \Carbon\Carbon::parse($validated['start_time']);
+        $diffFromAvailStart = abs($availStartCarbon->diffInMinutes($newStartCarbon));
+        if ($diffFromAvailStart > 0 && $diffFromAvailStart < 15) {
+            return back()->with('error', 'Jeda dari jam mulai ketersediaan pelatih harus tepat 0 menit atau minimal 15 menit. (Tersedia mulai '.$availStart.')');
+        }
+
         // 2. Gap and Overlap Check
         $existingSchedules = Schedule::where('user_id', $validated['coach_id'])
             ->where('day', $validated['day'])
+            ->with('poolLocation')
             ->orderBy('start_time')
             ->get();
 
         $newStart = \Carbon\Carbon::parse($validated['start_time']);
         $newEnd = \Carbon\Carbon::parse($validated['end_time']);
+        $newLocationName = \App\Models\PoolLocation::find($validated['pool_location_id'])->name;
 
         foreach ($existingSchedules as $existing) {
             $exStart = \Carbon\Carbon::parse($existing->start_time);
@@ -134,8 +156,9 @@ class ScheduleController extends Controller
                 return back()->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada ('.$existing->start_time.' - '.$existing->end_time.').');
             }
 
-            // Check 15-minute gap if not overlapping, ONLY IF LOCATION IS DIFFERENT
-            if ($existing->pool_location_id != $validated['pool_location_id']) {
+            // Check 15-minute gap if not overlapping, ONLY IF LOCATION IS DIFFERENT (By Name)
+            $existingLocName = $existing->poolLocation ? $existing->poolLocation->name : '';
+            if ($existingLocName != $newLocationName) {
                 if ($newStart >= $exEnd) {
                     // New schedule is AFTER existing
                     if (abs($newStart->diffInMinutes($exEnd)) < 15) {
@@ -186,13 +209,27 @@ class ScheduleController extends Controller
                 return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availStart.' - '.$availEnd.').');
             }
 
+            // Check gap from availability start time
+            $availStartCarbon = \Carbon\Carbon::parse($availability->start_time);
+            $newStartCarbon = \Carbon\Carbon::parse($validated['start_time']);
+            $diffFromAvailStart = abs($availStartCarbon->diffInMinutes($newStartCarbon));
+            if ($diffFromAvailStart > 0 && $diffFromAvailStart < 15) {
+                return back()->with('error', 'Jeda dari jam mulai ketersediaan pelatih harus tepat 0 menit atau minimal 15 menit. (Tersedia mulai '.$availStart.')');
+            }
+
             // 2. Overlap & Gap Check
             $existingSchedules = Schedule::where('coach_availability_id', $availability->id)
                 ->where('id', '!=', $schedule->id)
+                ->with('poolLocation')
                 ->get();
 
             $newStart = \Carbon\Carbon::parse($validated['start_time']);
             $newEnd = \Carbon\Carbon::parse($validated['end_time']);
+            $newLocationName = null;
+            if (!empty($validated['pool_location_id'])) {
+                $pool = \App\Models\PoolLocation::find($validated['pool_location_id']);
+                if ($pool) $newLocationName = $pool->name;
+            }
 
             foreach ($existingSchedules as $existing) {
                 $exStart = \Carbon\Carbon::parse($existing->start_time);
@@ -203,8 +240,9 @@ class ScheduleController extends Controller
                     return back()->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada ('.$existing->start_time.' - '.$existing->end_time.').');
                 }
 
-                // Check 15-minute gap if not overlapping, ONLY IF LOCATION IS DIFFERENT
-                if ($existing->pool_location_id != $validated['pool_location_id']) {
+                // Check 15-minute gap if not overlapping, ONLY IF LOCATION IS DIFFERENT (By Name)
+                $existingLocName = $existing->poolLocation ? $existing->poolLocation->name : '';
+                if ($newLocationName && $existingLocName && $existingLocName != $newLocationName) {
                     if ($newStart >= $exEnd) {
                         if (abs($newStart->diffInMinutes($exEnd)) < 15) {
                             return back()->with('error', 'Jadwal terlalu dekat dengan sesi sebelumnya di lokasi yang berbeda. Minimal jeda mobilitas adalah 15 menit.');

@@ -49,8 +49,20 @@ class TeamController extends Controller
 
         Team::create($data);
 
-        // Jika form login diisi, buat user baru
-        if ($request->filled('email') && $request->filled('role')) {
+        // Jika form login diisi (email), buat user baru
+        if ($request->filled('email')) {
+            $role = $request->role;
+            
+            // Jika role tidak dipilih, coba tebak dari nama jabatan, default ke pelatih
+            if (!$role) {
+                $posName = strtolower($request->position);
+                if (str_contains($posName, 'admin') || str_contains($posName, 'manajer') || str_contains($posName, 'pengelola')) {
+                    $role = 'admin';
+                } else {
+                    $role = 'pelatih';
+                }
+            }
+
             // Coba cari position_id berdasarkan nama posisi dari tabel positions
             $positionModel = \App\Models\Position::where('name', $request->position)->first();
             
@@ -58,8 +70,9 @@ class TeamController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt('password'),
-                'role' => $request->role,
+                'role' => $role,
                 'position_id' => $positionModel ? $positionModel->id : null,
+                'status' => 'approved', // Pastikan status aktif
             ]);
         }
 

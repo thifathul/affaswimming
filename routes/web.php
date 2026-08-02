@@ -148,7 +148,7 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
             $query->where('role', $request->role);
         }
 
-        $users = $query->get();
+        $users = $query->latest()->get();
         return view('master.users', compact('users'));
     })->name('master.users');
 
@@ -267,6 +267,8 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::get('/finance/payments', [\App\Http\Controllers\FinanceController::class, 'payments'])->name('finance.payments.index');
     Route::get('/finance/payments/create', [\App\Http\Controllers\FinanceController::class, 'create'])->name('finance.payments.create');
     Route::post('/finance/payments', [\App\Http\Controllers\FinanceController::class, 'store'])->name('finance.payments.store');
+    Route::get('/finance/payments/{transaction}/edit', [\App\Http\Controllers\FinanceController::class, 'edit'])->name('finance.payments.edit');
+    Route::put('/finance/payments/{transaction}', [\App\Http\Controllers\FinanceController::class, 'update'])->name('finance.payments.update');
     Route::post('/finance/payments/{transaction}/approve', [\App\Http\Controllers\FinanceController::class, 'approve'])->name('finance.payments.approve');
     Route::post('/finance/payments/{transaction}/reject', [\App\Http\Controllers\FinanceController::class, 'reject'])->name('finance.payments.reject');
     Route::post('/finance/payments/{transaction}/settle', [\App\Http\Controllers\FinanceController::class, 'settle'])->name('finance.payments.settle');
@@ -376,6 +378,7 @@ Route::middleware(['auth', 'role:murid'])->group(function () {
     Route::get('/murid/dashboard', function () {
         $student = auth()->user()->student;
         $classes = collect();
+        $schedules = collect();
         $activeInvals = collect();
         if ($student) {
             $classes = $student->swimClasses()->with('coaches.position')->get();
@@ -392,8 +395,18 @@ Route::middleware(['auth', 'role:murid'])->group(function () {
                     $query->whereColumn('training_date', 'schedule_requests.proposed_date');
                 })
                 ->get();
+                
+            $schedules = $student->schedules()->with(['coach.position', 'poolLocation'])->orderByRaw("CASE day 
+                WHEN 'Senin' THEN 1 
+                WHEN 'Selasa' THEN 2 
+                WHEN 'Rabu' THEN 3 
+                WHEN 'Kamis' THEN 4 
+                WHEN 'Jumat' THEN 5 
+                WHEN 'Sabtu' THEN 6 
+                WHEN 'Minggu' THEN 7 
+                ELSE 8 END")->orderBy('start_time')->get();
         }
-        return view('murid.dashboard', compact('classes', 'student', 'activeInvals'));
+        return view('murid.dashboard', compact('classes', 'student', 'activeInvals', 'schedules'));
     })->name('murid.dashboard');
 
 

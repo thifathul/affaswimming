@@ -41,8 +41,14 @@
                                 <option value="{{ $day }}" {{ request('day') == $day ? 'selected' : '' }}>{{ $day }}</option>
                             @endforeach
                         </select>
+                        <select name="pool_location_id" class="rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 max-w-[150px]">
+                            <option value="">Semua Lokasi</option>
+                            @foreach($poolLocations as $loc)
+                                <option value="{{ $loc->id }}" {{ request('pool_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
+                            @endforeach
+                        </select>
                         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Filter</button>
-                        @if(request()->hasAny(['coach_id', 'day']) && (request('coach_id') || request('day')))
+                        @if(request()->hasAny(['coach_id', 'day', 'pool_location_id']) && (request('coach_id') || request('day') || request('pool_location_id')))
                             <a href="{{ route('admin.schedules.index') }}" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors">Reset</a>
                         @endif
                     </form>

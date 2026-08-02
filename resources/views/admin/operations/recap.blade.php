@@ -28,7 +28,7 @@
                 </form>
 
                 <a href="{{ route('admin.operations.createManualRecap') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition shadow-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Buat Rekap Manual
+                    <i class="fa-solid fa-plus"></i> Buat Laporan Manual
                 </a>
             </div>
 

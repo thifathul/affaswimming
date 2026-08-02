@@ -54,6 +54,46 @@ class FinanceController extends Controller
         return redirect()->route('finance.payments.index')->with('success', 'Pembelian paket berhasil dibuat dan menunggu approval.');
     }
 
+    public function edit(Transaction $transaction)
+    {
+        $poolLocations = \App\Models\PoolLocation::all();
+        $students = Student::with('user')->get();
+        return view('finance.payments.edit', compact('transaction', 'poolLocations', 'students'));
+    }
+
+    public function update(Request $request, Transaction $transaction)
+    {
+        $request->merge([
+            'amount' => $request->amount ? str_replace('.', '', $request->amount) : null,
+            'credit' => $request->credit ? str_replace('.', '', $request->credit) : null,
+        ]);
+
+        $validated = $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'pool_location_id' => 'required|exists:pool_locations,id',
+            'class_type' => 'required|in:private,semi_private',
+            'amount' => 'required|numeric|min:0',
+            'credit' => 'nullable|numeric|min:0',
+            'practice_start_date' => 'required|date',
+            'proof_of_payment' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($request->hasFile('proof_of_payment')) {
+            if ($transaction->proof_of_payment) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($transaction->proof_of_payment);
+            }
+            $path = $request->file('proof_of_payment')->store('payments', 'public');
+            $validated['proof_of_payment'] = $path;
+        }
+
+        $validated['credit'] = $request->credit ?? 0;
+
+        $transaction->update($validated);
+
+        return redirect()->route('finance.payments.index')->with('success', 'Data pembelian paket berhasil diperbarui.');
+    }
+
     public function approve(Request $request, Transaction $transaction)
     {
         if ($transaction->status !== 'pending') {

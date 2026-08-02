@@ -140,6 +140,12 @@
                                                         <i class="fa-solid fa-circle-info"></i>
                                                     </button>
 
+                                                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'master')
+                                                        <a href="{{ route('finance.payments.edit', $trx->id) }}" class="ml-2 px-2 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition" title="Edit Data">
+                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                        </a>
+                                                    @endif
+
                                                     @if(auth()->user()->role === 'master')
                                                         <form action="{{ route('finance.payments.destroy', $trx->id) }}" method="POST" class="ml-2">
                                                             @csrf

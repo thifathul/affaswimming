@@ -111,11 +111,11 @@
             if (coachAttendanceSelect.value === 'Tidak Hadir') {
                 studentAttendanceSection.style.display = 'none';
                 reportNoteLabel.textContent = 'Alasan Tidak Hadir';
-                reportNoteTextarea.placeholder = 'Contoh: Saya tidak bisa hadir karena sakit / ada keperluan keluarga...';
+                reportNoteTextarea.placeholder = 'Contoh: Fokus pernapasan gaya bebas, murid mengalami peningkatan...';
             } else {
                 studentAttendanceSection.style.display = 'block';
                 reportNoteLabel.textContent = 'Catatan / Laporan Latihan';
-                reportNoteTextarea.placeholder = 'Contoh: Fokus pernapasan gaya bebas, murid mengalami peningkatan...';
+                reportNoteTextarea.placeholder = 'Contoh: Saya tidak bisa hadir karena sakit / ada keperluan keluarga...';
             }
         }
 
