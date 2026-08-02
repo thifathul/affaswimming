@@ -320,6 +320,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Admin Report Cards
     Route::get('/admin/report-cards', [\App\Http\Controllers\Admin\ReportCardController::class, 'index'])->name('admin.report-cards.index');
     Route::get('/admin/report-cards/{student}', [\App\Http\Controllers\Admin\ReportCardController::class, 'show'])->name('admin.report-cards.show');
+    Route::put('/admin/report-cards/{student}/{attendance}/admin-note', [\App\Http\Controllers\Admin\ReportCardController::class, 'updateAdminNote'])->name('admin.report-cards.update-admin-note');
 
 
     

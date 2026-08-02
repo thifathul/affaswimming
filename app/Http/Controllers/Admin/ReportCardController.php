@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Student;
-use App\Models\Evaluation;
+use App\Models\StudentAttendance;
 
 class ReportCardController extends Controller
 {
@@ -30,16 +30,37 @@ class ReportCardController extends Controller
 
     public function show(Student $student)
     {
-        $evaluations = Evaluation::with(['coach', 'swimClass'])
+        $evaluations = StudentAttendance::with(['trainingReport.coach', 'trainingReport.schedule.poolLocation'])
             ->where('student_id', $student->id)
-            ->orderBy('meeting_date', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->whereNotNull('evaluation')
+            ->where('evaluation', '!=', '')
+            ->join('training_reports', 'student_attendances.training_report_id', '=', 'training_reports.id')
+            ->orderBy('training_reports.training_date', 'desc')
+            ->orderBy('student_attendances.created_at', 'desc')
+            ->select('student_attendances.*')
             ->get();
 
-        $totalTrainings = \App\Models\StudentAttendance::where('student_id', $student->id)
+        $totalTrainings = StudentAttendance::where('student_id', $student->id)
             ->where('status', 'Hadir')
             ->count();
 
         return view('admin.report-cards.show', compact('student', 'evaluations', 'totalTrainings'));
+    }
+
+    public function updateAdminNote(Request $request, Student $student, StudentAttendance $attendance)
+    {
+        if ($attendance->student_id !== $student->id) {
+            abort(403, 'Invalid attendance record for this student.');
+        }
+
+        $request->validate([
+            'admin_note' => 'nullable|string'
+        ]);
+
+        $attendance->update([
+            'admin_note' => $request->admin_note
+        ]);
+
+        return back()->with('success', 'Catatan Admin berhasil diperbarui.');
     }
 }

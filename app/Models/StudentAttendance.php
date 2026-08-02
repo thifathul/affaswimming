@@ -11,6 +11,7 @@ class StudentAttendance extends Model
         'student_id',
         'status',
         'evaluation',
+        'admin_note',
     ];
 
     public function trainingReport()

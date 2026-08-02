@@ -17,10 +17,11 @@ class StudentReportController extends Controller
         $attendances = StudentAttendance::with(['trainingReport.coach', 'trainingReport.schedule.poolLocation'])
             ->where('student_id', $user->student->id)
             ->whereHas('trainingReport')
-            ->get()
-            ->sortByDesc(function ($att) {
-                return $att->trainingReport->training_date;
-            });
+            ->join('training_reports', 'student_attendances.training_report_id', '=', 'training_reports.id')
+            ->orderBy('training_reports.training_date', 'asc')
+            ->orderBy('student_attendances.created_at', 'asc')
+            ->select('student_attendances.*')
+            ->get();
 
         return view('student.reports.index', compact('attendances'));
     }

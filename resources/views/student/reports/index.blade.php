@@ -40,49 +40,68 @@
                             <p class="text-slate-500 font-medium">Belum ada laporan latihan.</p>
                         </div>
                     @else
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                            @foreach($attendances as $att)
-                                <div class="bg-white border {{ $att->status == 'Hadir' ? 'border-emerald-200' : 'border-red-200' }} rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-                                    <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
-                                        <div>
-                                            <p class="text-sm text-slate-500 font-medium mb-1">
-                                                <i class="fa-regular fa-calendar mr-1"></i>
-                                                {{ \Carbon\Carbon::parse($att->trainingReport->training_date)->format('d F Y') }}
-                                            </p>
-                                            <h4 class="font-bold text-slate-800 text-lg">
-                                                {{ $att->trainingReport->schedule->poolLocation->name ?? 'Lokasi Dihapus' }}
-                                            </h4>
-                                            <p class="text-sm text-slate-600 mt-1">
-                                                <i class="fa-solid fa-person-swimming text-blue-500 mr-1"></i>
-                                                Pelatih: {{ $att->trainingReport->coach->name ?? '-' }}
-                                            </p>
-                                        </div>
-                                        <div class="text-right">
-                                            @if($att->status == 'Hadir')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                    <i class="fa-solid fa-check mr-1"></i> Hadir
-                                                </span>
-                                                <div class="mt-2 text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                                    Pertemuan ke-{{ $att->meeting_number }}
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-slate-600">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-4 font-semibold">Tanggal</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">Pelatih</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">Lokasi / Kelas</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold text-center">Pertemuan Ke-</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">Catatan Evaluasi</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold text-center">Status Kehadiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach($attendances as $att)
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="font-medium text-slate-800">{{ \Carbon\Carbon::parse($att->trainingReport->training_date)->translatedFormat('d F Y') }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100">
+                                                        {{ strtoupper(substr($att->trainingReport->coach->name ?? '?', 0, 2)) }}
+                                                    </div>
+                                                    <div class="font-semibold text-slate-800">{{ $att->trainingReport->coach->name ?? 'Pelatih' }}</div>
                                                 </div>
-                                            @else
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
-                                                    <i class="fa-solid fa-xmark mr-1"></i> Absen
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center justify-center bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded">
+                                                    {{ $att->trainingReport->schedule->poolLocation->name ?? 'Lokasi Dihapus' }}
                                                 </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Evaluasi & Catatan</h5>
-                                        @if($att->evaluation)
-                                            <div class="bg-slate-50 rounded-lg p-3 text-sm text-slate-700 whitespace-pre-wrap border border-slate-100 leading-relaxed">{{ $att->evaluation }}</div>
-                                        @else
-                                            <p class="text-sm text-slate-400 italic">Tidak ada catatan evaluasi untuk pertemuan ini.</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                @if($att->status == 'Hadir')
+                                                    <span class="inline-flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-bold w-6 h-6 rounded-full">
+                                                        {{ $att->meeting_number }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-slate-400">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @if($att->evaluation)
+                                                    <p class="text-slate-700 text-sm whitespace-pre-line">{{ $att->evaluation }}</p>
+                                                @else
+                                                    <p class="text-sm text-slate-400 italic">Tidak ada catatan evaluasi.</p>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                @if($att->status == 'Hadir')
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                        <i class="fa-solid fa-check mr-1"></i> Hadir
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                                                        <i class="fa-solid fa-xmark mr-1"></i> Absen
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @endif
                 </div>
