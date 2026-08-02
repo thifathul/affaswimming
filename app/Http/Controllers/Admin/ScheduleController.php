@@ -108,9 +108,12 @@ class ScheduleController extends Controller
 
         $availability = \App\Models\CoachAvailability::findOrFail($validated['coach_availability_id']);
 
+        $availStart = \Carbon\Carbon::parse($availability->start_time)->format('H:i');
+        $availEnd = \Carbon\Carbon::parse($availability->end_time)->format('H:i');
+
         // 1. Boundary Check
-        if ($validated['start_time'] < $availability->start_time || $validated['end_time'] > $availability->end_time) {
-            return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availability->start_time.' - '.$availability->end_time.').');
+        if ($validated['start_time'] < $availStart || $validated['end_time'] > $availEnd) {
+            return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availStart.' - '.$availEnd.').');
         }
 
         // 2. Gap and Overlap Check
@@ -175,9 +178,12 @@ class ScheduleController extends Controller
         
         $availability = $schedule->coachAvailability;
         if ($availability) {
+            $availStart = \Carbon\Carbon::parse($availability->start_time)->format('H:i');
+            $availEnd = \Carbon\Carbon::parse($availability->end_time)->format('H:i');
+
             // 1. Boundary Check
-            if ($validated['start_time'] < $availability->start_time || $validated['end_time'] > $availability->end_time) {
-                return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availability->start_time.' - '.$availability->end_time.').');
+            if ($validated['start_time'] < $availStart || $validated['end_time'] > $availEnd) {
+                return back()->with('error', 'Jam kelas harus berada di dalam rentang ketersediaan pelatih ('.$availStart.' - '.$availEnd.').');
             }
 
             // 2. Overlap & Gap Check
