@@ -135,8 +135,20 @@ Route::middleware(['auth', 'role:master'])->group(function () {
 
 // Shared Master & Admin Group
 Route::middleware(['auth', 'role:master,admin'])->group(function () {
-    Route::get('/master/users', function () {
-        $users = \App\Models\User::where('status', '!=', 'pending')->orWhereNull('status')->get();
+    Route::get('/master/users', function (\Illuminate\Http\Request $request) {
+        $query = \App\Models\User::where(function($q) {
+            $q->where('status', '!=', 'pending')->orWhereNull('status');
+        });
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->get();
         return view('master.users', compact('users'));
     })->name('master.users');
 
