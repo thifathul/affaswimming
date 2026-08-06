@@ -267,6 +267,9 @@
                             <a href="{{ route('admin.registrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-user-plus"></i> Approval Registrasi
                             </a>
+                            <a href="{{ route('admin.trials.index') }}" class="sidebar-link {{ request()->routeIs('admin.trials.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-person-swimming"></i> Trial Renang
+                            </a>
                             <a href="{{ route('admin.operations.recap') }}" class="sidebar-link {{ request()->routeIs('admin.operations.recap') ? 'active' : '' }}">
                                 <i class="fa-solid fa-list-check"></i> Rekap Kehadiran
                             </a>
@@ -319,6 +322,9 @@
                             <a href="{{ route('admin.registrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-user-plus"></i> Approval Registrasi
                             </a>
+                            <a href="{{ route('admin.trials.index') }}" class="sidebar-link {{ request()->routeIs('admin.trials.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-person-swimming"></i> Trial Renang
+                            </a>
                             <a href="{{ route('admin.operations.recap') }}" class="sidebar-link {{ request()->routeIs('admin.operations.recap') ? 'active' : '' }}">
                                 <i class="fa-solid fa-list-check"></i> Rekap Kehadiran
                             </a>
@@ -352,6 +358,9 @@
                             </a>
                             <a href="{{ route('pelatih.all-schedules.index') }}" class="sidebar-link {{ request()->routeIs('pelatih.all-schedules.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-users"></i> Jadwal Pelatih Lain
+                            </a>
+                            <a href="{{ route('pelatih.trials.index') }}" class="sidebar-link {{ request()->routeIs('pelatih.trials.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-person-swimming"></i> Jadwal Trial
                             </a>
                             <a href="{{ route('pelatih.reports.index') }}" class="sidebar-link {{ request()->routeIs('pelatih.reports.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-list-check"></i> Daftar Laporan

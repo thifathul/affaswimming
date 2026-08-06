@@ -34,6 +34,7 @@ class TeamController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'nickname' => 'nullable|string|max:255',
             'position' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
@@ -95,6 +96,7 @@ class TeamController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'nickname' => 'nullable|string|max:255',
             'position' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',

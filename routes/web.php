@@ -336,6 +336,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/report-cards/{student}', [\App\Http\Controllers\Admin\ReportCardController::class, 'show'])->name('admin.report-cards.show');
     Route::put('/admin/report-cards/{student}/{attendance}/admin-note', [\App\Http\Controllers\Admin\ReportCardController::class, 'updateAdminNote'])->name('admin.report-cards.update-admin-note');
 
+    // Admin Trials
+    Route::resource('/admin/trials', \App\Http\Controllers\Admin\TrialController::class)->names([
+        'index' => 'admin.trials.index',
+        'create' => 'admin.trials.create',
+        'store' => 'admin.trials.store',
+        'edit' => 'admin.trials.edit',
+        'update' => 'admin.trials.update',
+        'destroy' => 'admin.trials.destroy',
+    ]);
 
     
     // Payroll
@@ -371,6 +380,11 @@ Route::middleware(['auth', 'role:pelatih'])->group(function () {
     Route::post('/pelatih/schedules/{schedule}/request-delete', [\App\Http\Controllers\Pelatih\ScheduleController::class, 'requestDelete'])->name('pelatih.schedules.requestDelete');
     
     Route::get('/pelatih/payroll-history', [\App\Http\Controllers\Pelatih\PayrollHistoryController::class, 'history'])->name('pelatih.payroll.history');
+
+    // Pelatih Trials
+    Route::get('/pelatih/trials', [\App\Http\Controllers\Pelatih\TrialController::class, 'index'])->name('pelatih.trials.index');
+    Route::get('/pelatih/trials/{trial}/report', [\App\Http\Controllers\Pelatih\TrialController::class, 'edit'])->name('pelatih.trials.report');
+    Route::put('/pelatih/trials/{trial}', [\App\Http\Controllers\Pelatih\TrialController::class, 'update'])->name('pelatih.trials.update');
 });
 
 // Murid Dashboard Group

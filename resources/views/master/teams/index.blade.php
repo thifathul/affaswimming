@@ -41,6 +41,7 @@
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                                 <th class="p-4 pl-6">Nama Anggota</th>
+                                <th class="p-4">Nama Panggilan</th>
                                 <th class="p-4">Jabatan</th>
                                 <th class="p-4">No Telepon</th>
                                 <th class="p-4">Alamat</th>
@@ -52,6 +53,9 @@
                                 <tr class="hover:bg-slate-50/50 transition-colors">
                                     <td class="p-4 pl-6 text-slate-800 font-bold">
                                         {{ $team->name }}
+                                    </td>
+                                    <td class="p-4 text-slate-600 font-medium">
+                                        {{ $team->nickname ?? '-' }}
                                     </td>
                                     <td class="p-4">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 shadow-sm capitalize">

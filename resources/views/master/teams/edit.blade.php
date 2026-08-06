@@ -27,10 +27,16 @@
                     @method('PUT')
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
+                        <div>
                             <label for="name" class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
                             <input id="name" name="name" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all placeholder-slate-400" value="{{ old('name', $team->name) }}" required autofocus />
                             <x-input-error class="mt-2 text-red-500 text-xs" :messages="$errors->get('name')" />
+                        </div>
+
+                        <div>
+                            <label for="nickname" class="block text-sm font-semibold text-slate-700 mb-1">Nama Panggilan</label>
+                            <input id="nickname" name="nickname" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:border-blue-500 focus:ring focus:ring-blue-500/20 transition-all placeholder-slate-400" value="{{ old('nickname', $team->nickname) }}" />
+                            <x-input-error class="mt-2 text-red-500 text-xs" :messages="$errors->get('nickname')" />
                         </div>
 
                         <div>
