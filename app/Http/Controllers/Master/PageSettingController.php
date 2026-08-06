@@ -13,7 +13,8 @@ class PageSettingController extends Controller
     {
         $keys = [
             'about_owner_message', 'about_owner_photo',
-            'contact_address', 'contact_phone', 'contact_email', 'contact_instagram', 'contact_map_embed'
+            'contact_address', 'contact_phone', 'contact_email', 'contact_instagram', 'contact_map_embed',
+            'schedule_morning_end', 'schedule_afternoon_end'
         ];
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
 
@@ -30,6 +31,8 @@ class PageSettingController extends Controller
             'contact_email' => 'nullable|email',
             'contact_instagram' => 'nullable|string',
             'contact_map_embed' => 'nullable|string',
+            'schedule_morning_end' => 'nullable|date_format:H:i',
+            'schedule_afternoon_end' => 'nullable|date_format:H:i',
         ]);
 
         $data = $request->except(['_token', '_method', 'about_owner_photo']);

@@ -79,10 +79,64 @@ class ScheduleController extends Controller
         $coaches = \App\Models\User::where('role', 'pelatih')->get();
         $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
+        // Location Summary Logic
+        $morningEnd = \App\Models\Setting::where('key', 'schedule_morning_end')->value('value') ?: '11:59';
+        $afternoonEnd = \App\Models\Setting::where('key', 'schedule_afternoon_end')->value('value') ?: '14:59';
+
+        $locationSummary = collect();
+
+        // We only want booked schedules to count them
+        $allSchedulesQuery = \App\Models\Schedule::where('status', 'booked')->with('poolLocation');
+        
+        // Apply identical filters to the summary
+        if ($request->filled('coach_id')) {
+            $allSchedulesQuery->where('user_id', $request->coach_id);
+        }
+        if ($request->filled('day')) {
+            $allSchedulesQuery->where('day', $request->day);
+        }
+        if ($request->filled('pool_location_id')) {
+            $selectedLocation = \App\Models\PoolLocation::find($request->pool_location_id);
+            if ($selectedLocation) {
+                $locIds = \App\Models\PoolLocation::where('name', $selectedLocation->name)->pluck('id');
+                $allSchedulesQuery->whereIn('pool_location_id', $locIds);
+            }
+        }
+
+        $allSchedules = $allSchedulesQuery->get();
+
+        foreach ($allSchedules as $sch) {
+            $poolName = $sch->poolLocation->name ?? 'Tanpa Lokasi';
+            
+            if (!$locationSummary->has($poolName)) {
+                $locationSummary->put($poolName, [
+                    'pagi' => 0,
+                    'siang' => 0,
+                    'sore' => 0,
+                    'total' => 0,
+                ]);
+            }
+
+            $summary = $locationSummary->get($poolName);
+            $startTime = \Carbon\Carbon::parse($sch->start_time)->format('H:i');
+
+            if ($startTime <= $morningEnd) {
+                $summary['pagi']++;
+            } elseif ($startTime <= $afternoonEnd) {
+                $summary['siang']++;
+            } else {
+                $summary['sore']++;
+            }
+            $summary['total']++;
+
+            $locationSummary->put($poolName, $summary);
+        }
+
         return view('admin.schedules.index', [
             'groupedSchedules' => $groupedSchedules->sortBy('coach_name')->values(),
             'coaches' => $coaches,
-            'poolLocations' => $poolLocations
+            'poolLocations' => $poolLocations,
+            'locationSummary' => $locationSummary->sortKeys()
         ]);
     }
 

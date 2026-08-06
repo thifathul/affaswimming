@@ -103,6 +103,34 @@
                     </div>
                 </div>
 
+                <!-- SECTION: PENGATURAN WAKTU JADWAL -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100 p-8 mb-8">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Pengaturan Kategori Waktu Jadwal</h3>
+                            <p class="text-sm text-slate-500">Atur batasan jam untuk kategori Pagi, Siang, dan Sore di halaman Manajemen Jadwal.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Batas Akhir Jam Pagi (Contoh: 11:59)</label>
+                            <input type="time" name="schedule_morning_end" value="{{ old('schedule_morning_end', $settings['schedule_morning_end'] ?? '11:59') }}"
+                                   class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 shadow-sm text-sm">
+                            <p class="text-xs text-slate-500 mt-1">Jadwal dari jam 00:00 sampai jam ini akan dihitung sebagai Pagi.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Batas Akhir Jam Siang (Contoh: 14:59)</label>
+                            <input type="time" name="schedule_afternoon_end" value="{{ old('schedule_afternoon_end', $settings['schedule_afternoon_end'] ?? '14:59') }}"
+                                   class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 shadow-sm text-sm">
+                            <p class="text-xs text-slate-500 mt-1">Jadwal setelah batas pagi sampai jam ini akan dihitung sebagai Siang. Sisanya otomatis Sore.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-3 mb-10">
                     <a href="{{ route('master.dashboard') }}" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition">
                         Batal
