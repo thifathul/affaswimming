@@ -12,9 +12,14 @@ class PayrollHistoryController extends Controller
     {
         $coachName = auth()->user()->name;
         
-        // Asumsi format description: "Pembayaran Gaji Pelatih: [Nama Pelatih] ..."
-        $histories = OperationalExpense::where('keyword', 'gaji_pelatih')
-            ->where('description', 'like', '%Pembayaran Gaji Pelatih: ' . $coachName . '%')
+        // Asumsi format description: 
+        // 1. Lama: "Pembayaran Gaji Pelatih: [Nama Pelatih] ..."
+        // 2. Baru: "Penggajian "[Nama Pelatih]" ..."
+        $histories = OperationalExpense::whereIn('keyword', ['gaji', 'gaji_pelatih'])
+            ->where(function($q) use ($coachName) {
+                $q->where('description', 'like', '%Pembayaran Gaji Pelatih: ' . $coachName . '%')
+                  ->orWhere('description', 'like', '%Penggajian "' . $coachName . '"%');
+            })
             ->orderBy('expense_date', 'desc')
             ->get();
 

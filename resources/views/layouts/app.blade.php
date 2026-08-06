@@ -282,6 +282,9 @@
                             <a href="{{ route('finance.payments.index') }}" class="sidebar-link {{ request()->routeIs('finance.payments.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-file-invoice-dollar"></i> Pembayaran Paket
                             </a>
+                            <a href="{{ route('admin.wallets.index') }}" class="sidebar-link {{ request()->routeIs('admin.wallets.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-wallet"></i> E-Wallet
+                            </a>
                             <a href="{{ route('finance.unpaid.index') }}" class="sidebar-link {{ request()->routeIs('finance.unpaid.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Daftar Unpaid
                             </a>
@@ -339,6 +342,9 @@
                             </div>
                             <a href="{{ route('finance.payments.index') }}" class="sidebar-link {{ request()->routeIs('finance.payments.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-file-invoice-dollar"></i> Pembayaran Paket
+                            </a>
+                            <a href="{{ route('admin.wallets.index') }}" class="sidebar-link {{ request()->routeIs('admin.wallets.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-wallet"></i> E-Wallet
                             </a>
                             <a href="{{ route('finance.unpaid.index') }}" class="sidebar-link {{ request()->routeIs('finance.unpaid.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Daftar Unpaid

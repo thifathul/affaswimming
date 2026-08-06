@@ -348,8 +348,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     
     // Payroll
+    // Payroll
     Route::get('/finance/payroll', [\App\Http\Controllers\PayrollController::class, 'index'])->name('finance.payroll.index');
     Route::post('/finance/payroll/pay', [\App\Http\Controllers\PayrollController::class, 'paySalary'])->name('finance.payroll.pay');
+
+    // E-Wallet
+    Route::get('/wallets', [\App\Http\Controllers\Admin\WalletController::class, 'index'])->name('admin.wallets.index');
+    Route::get('/wallets/{user}', [\App\Http\Controllers\Admin\WalletController::class, 'show'])->name('admin.wallets.show');
+    Route::post('/wallets/{user}/transaction', [\App\Http\Controllers\Admin\WalletController::class, 'storeTransaction'])->name('admin.wallets.transaction');
 });
 
 // Pelatih Dashboard Group

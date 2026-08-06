@@ -35,6 +35,11 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
     public function position()
     {
         return $this->belongsTo(Position::class);

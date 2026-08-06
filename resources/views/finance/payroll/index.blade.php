@@ -53,6 +53,12 @@
                         <p class="text-sm text-slate-500 mt-1">Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
                     </div>
                     <div class="text-right">
+                        @if(isset($coachDebt) && $coachDebt > 0)
+                            <div class="mb-3 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-right inline-block">
+                                <p class="text-xs font-bold text-red-600 uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Total Kasbon/Pinjaman</p>
+                                <p class="text-xl font-bold text-red-700">Rp {{ number_format($coachDebt, 0, ',', '.') }}</p>
+                            </div>
+                        @endif
                         <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Total Dibayarkan</p>
                         <div class="flex items-center justify-end gap-4">
                             <p class="text-3xl font-bold text-emerald-600">Rp {{ number_format($totalSalary, 0, ',', '.') }}</p>
@@ -143,7 +149,12 @@
                                 <div class="mt-2 text-sm text-slate-500 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <p><strong>Pelatih:</strong> <span id="modalCoachName"></span></p>
                                     <p><strong>Periode:</strong> <span id="modalPeriod"></span></p>
-                                    <p><strong>Total Dibayarkan:</strong> Rp <span id="modalTotalSalary"></span></p>
+                                    <p><strong>Total Gaji Pokok:</strong> Rp <span id="modalTotalSalary"></span></p>
+                                    @if(isset($coachDebt) && $coachDebt > 0)
+                                        <div class="mt-2 pt-2 border-t border-slate-200">
+                                            <p class="font-bold text-emerald-700 text-lg">Total Bersih: Rp <span id="modalNetSalary"></span></p>
+                                        </div>
+                                    @endif
                                 </div>
                                 
                                 <input type="hidden" name="coach_id" value="{{ $selectedCoachId }}">
@@ -151,6 +162,20 @@
                                 <input type="hidden" name="end_date" value="{{ $endDate }}">
                                 <input type="hidden" name="amount" value="{{ $totalSalary }}">
                                 
+                                @if(isset($coachDebt) && $coachDebt > 0)
+                                <div class="mb-4 p-4 rounded-xl border border-red-200 bg-red-50 text-sm">
+                                    <h4 class="font-bold text-red-700 mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Pelatih Memiliki Kasbon!</h4>
+                                    <p class="text-red-600 mb-2">Total Hutang/Kasbon: <strong>Rp {{ number_format($coachDebt, 0, ',', '.') }}</strong></p>
+                                    
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Nominal Potong Gaji (Rp)</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 font-bold">Rp</span>
+                                        <input type="text" id="deduction_amount" name="deduction_amount" class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-3 py-2 text-slate-800 focus:border-red-500 focus:ring-red-500/20 format-rupiah" value="{{ number_format(min($totalSalary, $coachDebt), 0, ',', '.') }}" placeholder="0">
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 mt-1">Kosongkan (isi 0) jika tidak ingin potong gaji bulan ini.</p>
+                                </div>
+                                @endif
+
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-2">Upload Bukti Pembayaran <span class="text-red-500">*</span></label>
@@ -183,12 +208,34 @@
             document.getElementById('modalCoachName').innerText = coachName;
             document.getElementById('modalPeriod').innerText = startDate + ' s/d ' + endDate;
             document.getElementById('modalTotalSalary').innerText = new Intl.NumberFormat('id-ID').format(totalSalary);
+            
+            @if(isset($coachDebt) && $coachDebt > 0)
+                updateNetSalary();
+            @endif
+
             document.getElementById('payModal').classList.remove('hidden');
         }
 
         function closePayModal() {
             document.getElementById('payModal').classList.add('hidden');
         }
+
+        @if(isset($coachDebt) && $coachDebt > 0)
+        const deductionInput = document.getElementById('deduction_amount');
+        const originalSalary = {{ $totalSalary }};
+        
+        function updateNetSalary() {
+            let val = deductionInput.value.replace(/[^,\d]/g, '');
+            let deduction = val ? parseInt(val) : 0;
+            let net = originalSalary - deduction;
+            
+            if (net < 0) net = 0; // Prevent negative display just in case
+            
+            document.getElementById('modalNetSalary').innerText = new Intl.NumberFormat('id-ID').format(net);
+        }
+
+        deductionInput.addEventListener('keyup', updateNetSalary);
+        @endif
     </script>
     @endif
 </x-app-layout>
