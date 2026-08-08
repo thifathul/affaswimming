@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'AFFA Swimming') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" href="{{ asset('affa_logo.jpg') }}" type="image/jpeg">
+
         <!-- Google Fonts matching welcome page -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

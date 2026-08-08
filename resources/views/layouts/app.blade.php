@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'AFFA Swimming') }}</title>
 
+        <!-- Favicon -->
+        <link rel="icon" href="{{ asset('affa_logo.jpg') }}" type="image/jpeg">
+
         <!-- Google Fonts matching welcome page -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,7 +175,7 @@
                 display: flex;
                 flex-direction: column;
                 z-index: 40;
-                min-height: calc(100vh - 64px) !important;
+                min-height: calc(100vh - 64px);
             }
 
             .sidebar-menu {
@@ -227,9 +230,9 @@
             @include('layouts.navigation')
 
             <!-- Main Layout with Sidebar + Content -->
-            <div class="flex-1 flex flex-row min-h-0 overflow-hidden relative">
+            <div class="flex-1 flex flex-row min-h-0 relative">
                 <!-- Left Sidebar -->
-                <aside class="sidebar overflow-y-auto shrink-0" x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-x-full" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-full">
+                <aside class="sidebar shrink-0" x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-x-full" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-full">
                     <div class="sidebar-menu">
                         <div class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold px-4 mb-2">Menu Utama</div>
                         
