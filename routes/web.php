@@ -304,12 +304,16 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
 
     // Shared Schedules (Master & Admin)
     Route::get('/admin/schedules', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('admin.schedules.index');
+    Route::get('/admin/schedules/locations', [\App\Http\Controllers\Admin\ScheduleController::class, 'locationSchedules'])->name('admin.schedules.locations');
     Route::post('/admin/schedules', [\App\Http\Controllers\Admin\ScheduleController::class, 'store'])->name('admin.schedules.store');
     Route::get('/admin/schedules/coach/{coach}/day/{day}', [\App\Http\Controllers\Admin\ScheduleController::class, 'showDay'])->name('admin.schedules.showDay');
     Route::put('/admin/schedules/{schedule}', [\App\Http\Controllers\Admin\ScheduleController::class, 'update'])->name('admin.schedules.update');
     Route::delete('/admin/schedules/{schedule}', [\App\Http\Controllers\Admin\ScheduleController::class, 'destroy'])->name('admin.schedules.destroy');
     Route::post('/admin/schedules/{schedule}/assign', [\App\Http\Controllers\Admin\ScheduleController::class, 'assign'])->name('admin.schedules.assign');
     Route::delete('/admin/schedules/{schedule}/deassign/{student}', [\App\Http\Controllers\Admin\ScheduleController::class, 'deassign'])->name('admin.schedules.deassign');
+    
+    Route::put('/admin/availabilities/{availability}', [\App\Http\Controllers\Admin\ScheduleController::class, 'updateAvailability'])->name('admin.availabilities.update');
+    Route::delete('/admin/availabilities/{availability}', [\App\Http\Controllers\Admin\ScheduleController::class, 'destroyAvailability'])->name('admin.availabilities.destroy');
 });
 
 

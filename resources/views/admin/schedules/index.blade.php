@@ -22,40 +22,7 @@
                 </div>
             @endif
 
-            @if(isset($locationSummary) && $locationSummary->count() > 0)
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4">Ringkasan Sesi Latihan Per Lokasi</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($locationSummary as $poolName => $data)
-                            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                                <div class="flex items-center gap-3 mb-4 border-b border-slate-50 pb-3">
-                                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                        <i class="fa-solid fa-water"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-slate-800">{{ $poolName }}</h4>
-                                        <p class="text-xs font-semibold text-slate-500">Total: {{ $data['total'] }} Sesi Latihan</p>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-3 gap-2 text-center">
-                                    <div class="bg-amber-50 rounded-xl p-2 border border-amber-100">
-                                        <p class="text-[10px] font-bold text-amber-600 uppercase mb-1">Pagi</p>
-                                        <p class="text-lg font-bold text-amber-700">{{ $data['pagi'] }}</p>
-                                    </div>
-                                    <div class="bg-orange-50 rounded-xl p-2 border border-orange-100">
-                                        <p class="text-[10px] font-bold text-orange-600 uppercase mb-1">Siang</p>
-                                        <p class="text-lg font-bold text-orange-700">{{ $data['siang'] }}</p>
-                                    </div>
-                                    <div class="bg-indigo-50 rounded-xl p-2 border border-indigo-100">
-                                        <p class="text-[10px] font-bold text-indigo-600 uppercase mb-1">Sore</p>
-                                        <p class="text-lg font-bold text-indigo-700">{{ $data['sore'] }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100">
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">

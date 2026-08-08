@@ -255,8 +255,11 @@
                             <a href="{{ route('admin.pool-locations.index') }}" class="sidebar-link {{ request()->routeIs('admin.pool-locations*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-water-ladder"></i> Master Paket & Kolam
                             </a>
-                            <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.index') || request()->routeIs('admin.schedules.showDay') ? 'active' : '' }}">
                                 <i class="fa-solid fa-calendar-days"></i> Manajemen Jadwal
+                            </a>
+                            <a href="{{ route('admin.schedules.locations') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.locations') ? 'active' : '' }}">
+                                <i class="fa-solid fa-map-location-dot"></i> Jadwal Lokasi
                             </a>
                             <a href="{{ route('master.articles.index') }}" class="sidebar-link {{ request()->routeIs('master.articles*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-newspaper"></i> Manajemen Artikel
@@ -313,8 +316,11 @@
                             <a href="{{ route('admin.pool-locations.index') }}" class="sidebar-link {{ request()->routeIs('admin.pool-locations*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-location-dot"></i> Master Paket
                             </a>
-                            <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.index') || request()->routeIs('admin.schedules.showDay') ? 'active' : '' }}">
                                 <i class="fa-regular fa-calendar-days"></i> Manajemen Jadwal
+                            </a>
+                            <a href="{{ route('admin.schedules.locations') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.locations') ? 'active' : '' }}">
+                                <i class="fa-solid fa-map-location-dot"></i> Jadwal Lokasi
                             </a>
                             <div class="px-4 py-2 mt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Operasional

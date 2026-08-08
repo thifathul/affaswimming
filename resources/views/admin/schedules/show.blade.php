@@ -70,9 +70,21 @@
                                         <div class="text-xs text-slate-500">Blok Waktu Pelatih</div>
                                     </div>
                                 </div>
-                                <button type="button" onclick="openCreateModal({{ $availability->id }}, '{{ \Carbon\Carbon::parse($availability->start_time)->format('H:i') }}', '{{ \Carbon\Carbon::parse($availability->end_time)->format('H:i') }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shadow-sm">
-                                    <i class="fa-solid fa-plus mr-1"></i> Sesi Kelas
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="openEditAvailabilityModal({{ $availability->id }}, '{{ \Carbon\Carbon::parse($availability->start_time)->format('H:i') }}', '{{ \Carbon\Carbon::parse($availability->end_time)->format('H:i') }}')" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors border border-blue-200" title="Edit Blok">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <form action="{{ route('admin.availabilities.destroy', $availability->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus blok waktu ini? Pastikan tidak ada sesi kelas di dalamnya.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors border border-red-200" title="Hapus Blok">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    <button type="button" onclick="openCreateModal({{ $availability->id }}, '{{ \Carbon\Carbon::parse($availability->start_time)->format('H:i') }}', '{{ \Carbon\Carbon::parse($availability->end_time)->format('H:i') }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shadow-sm ml-2">
+                                        <i class="fa-solid fa-plus mr-1"></i> Sesi Kelas
+                                    </button>
+                                </div>
                             </div>
                         @empty
                             <div class="text-center py-6 text-slate-500 text-sm">
@@ -311,6 +323,54 @@
         </div>
     </div>
 
+    <!-- Modal Edit Blok Ketersediaan -->
+    <div id="editAvailabilityModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeEditAvailabilityModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100">
+                <form id="editAvailabilityForm" method="POST" action="">
+                    @csrf
+                    @method('PUT')
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="fa-solid fa-clock text-blue-600"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-bold text-slate-900" id="modal-title">
+                                    Edit Blok Waktu
+                                </h3>
+                                <p class="text-sm text-slate-500 mt-1">Ubah rentang waktu ketersediaan pelatih.</p>
+                                
+                                <div class="mt-6 space-y-5">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="avail_start_time" class="block text-sm font-medium text-slate-700">Jam Mulai</label>
+                                            <input type="time" name="start_time" id="avail_start_time" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        </div>
+                                        <div>
+                                            <label for="avail_end_time" class="block text-sm font-medium text-slate-700">Jam Selesai</label>
+                                            <input type="time" name="end_time" id="avail_end_time" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-100 rounded-b-2xl">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
+                            Simpan Perubahan
+                        </button>
+                        <button type="button" onclick="closeEditAvailabilityModal()" class="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.originalStudentIds = [];
         
@@ -361,6 +421,17 @@
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
+        }
+        
+        function openEditAvailabilityModal(id, start, end) {
+            document.getElementById('editAvailabilityForm').action = '/admin/availabilities/' + id;
+            document.getElementById('avail_start_time').value = start;
+            document.getElementById('avail_end_time').value = end;
+            document.getElementById('editAvailabilityModal').classList.remove('hidden');
+        }
+
+        function closeEditAvailabilityModal() {
+            document.getElementById('editAvailabilityModal').classList.add('hidden');
         }
         
         document.getElementById('editForm').addEventListener('submit', function(e) {

@@ -116,7 +116,12 @@
                                                 {{ strtoupper(substr($student->name, 0, 2)) }}
                                             </div>
                                             <div>
-                                                <p class="font-bold text-slate-800 leading-snug">{{ $student->name }}</p>
+                                                <div class="flex items-center gap-2">
+                                                    <p class="font-bold text-slate-800 leading-snug">{{ $student->name }}</p>
+                                                    @if($student->gender)
+                                                        <i class="fa-solid {{ $student->gender === 'Laki-laki' ? 'fa-mars text-blue-500' : 'fa-venus text-pink-500' }}" title="{{ $student->gender }}"></i>
+                                                    @endif
+                                                </div>
                                                 <p class="text-[10px] text-slate-450 font-medium">ID Murid: AFFA-M-{{ str_pad($student->id, 4, '0', STR_PAD_LEFT) }}</p>
                                             </div>
                                         </div>

@@ -79,22 +79,21 @@ class ScheduleController extends Controller
         $coaches = \App\Models\User::where('role', 'pelatih')->get();
         $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
-        // Location Summary Logic
-        $morningEnd = \App\Models\Setting::where('key', 'schedule_morning_end')->value('value') ?: '11:59';
-        $afternoonEnd = \App\Models\Setting::where('key', 'schedule_afternoon_end')->value('value') ?: '14:59';
+        return view('admin.schedules.index', [
+            'groupedSchedules' => $groupedSchedules->sortBy('coach_name')->values(),
+            'coaches' => $coaches,
+            'poolLocations' => $poolLocations,
+        ]);
+    }
 
+    public function locationSchedules(Request $request)
+    {
         $locationSummary = collect();
 
         // We only want booked schedules to count them
-        $allSchedulesQuery = \App\Models\Schedule::where('status', 'booked')->with('poolLocation');
+        $allSchedulesQuery = \App\Models\Schedule::where('status', 'booked')->with(['poolLocation', 'coach', 'students']);
         
         // Apply identical filters to the summary
-        if ($request->filled('coach_id')) {
-            $allSchedulesQuery->where('user_id', $request->coach_id);
-        }
-        if ($request->filled('day')) {
-            $allSchedulesQuery->where('day', $request->day);
-        }
         if ($request->filled('pool_location_id')) {
             $selectedLocation = \App\Models\PoolLocation::find($request->pool_location_id);
             if ($selectedLocation) {
@@ -102,41 +101,75 @@ class ScheduleController extends Controller
                 $allSchedulesQuery->whereIn('pool_location_id', $locIds);
             }
         }
+        if ($request->filled('day')) {
+            $allSchedulesQuery->where('day', $request->day);
+        }
 
         $allSchedules = $allSchedulesQuery->get();
 
         foreach ($allSchedules as $sch) {
             $poolName = $sch->poolLocation->name ?? 'Tanpa Lokasi';
+            $day = $sch->day;
+            $timeSlot = \Carbon\Carbon::parse($sch->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($sch->end_time)->format('H:i');
             
             if (!$locationSummary->has($poolName)) {
-                $locationSummary->put($poolName, [
-                    'pagi' => 0,
-                    'siang' => 0,
-                    'sore' => 0,
-                    'total' => 0,
-                ]);
+                $locationSummary->put($poolName, collect());
             }
 
-            $summary = $locationSummary->get($poolName);
-            $startTime = \Carbon\Carbon::parse($sch->start_time)->format('H:i');
-
-            if ($startTime <= $morningEnd) {
-                $summary['pagi']++;
-            } elseif ($startTime <= $afternoonEnd) {
-                $summary['siang']++;
-            } else {
-                $summary['sore']++;
+            $poolSummary = $locationSummary->get($poolName);
+            
+            if (!$poolSummary->has($day)) {
+                $poolSummary->put($day, collect());
             }
-            $summary['total']++;
 
-            $locationSummary->put($poolName, $summary);
+            $daySummary = $poolSummary->get($day);
+            
+            if (!$daySummary->has($timeSlot)) {
+                $daySummary->put($timeSlot, collect([
+                    'time' => $timeSlot,
+                    'start_time' => \Carbon\Carbon::parse($sch->start_time)->format('H:i'), // for sorting
+                    'coaches' => collect(), // collection of coach IDs to count unique
+                    'student_count' => 0,
+                    'details' => collect() // details for the modal
+                ]));
+            }
+            
+            $slotData = $daySummary->get($timeSlot);
+            $slotData['coaches']->push($sch->coach->id);
+            $slotData['student_count'] += $sch->students->count();
+            
+            // For modal, we want to show: Coach Name -> [Student Names...]
+            $slotData['details']->push([
+                'coach_name' => $sch->coach->name ?? 'N/A',
+                'students' => $sch->students->pluck('name')->toArray()
+            ]);
+            
+            $daySummary->put($timeSlot, $slotData);
+            $poolSummary->put($day, $daySummary);
+            $locationSummary->put($poolName, $poolSummary);
         }
 
-        return view('admin.schedules.index', [
-            'groupedSchedules' => $groupedSchedules->sortBy('coach_name')->values(),
-            'coaches' => $coaches,
-            'poolLocations' => $poolLocations,
-            'locationSummary' => $locationSummary->sortKeys()
+        // Sort inside locationSummary
+        foreach ($locationSummary as $poolName => $poolSummary) {
+            $daysOrder = ['Senin'=>1, 'Selasa'=>2, 'Rabu'=>3, 'Kamis'=>4, 'Jumat'=>5, 'Sabtu'=>6, 'Minggu'=>7];
+            $poolSummary = $poolSummary->sortBy(function($val, $key) use ($daysOrder) {
+                return $daysOrder[$key] ?? 8;
+            });
+            
+            // Sort time slots
+            foreach ($poolSummary as $day => $daySummary) {
+                $daySummary = $daySummary->sortBy('start_time')->values();
+                $poolSummary->put($day, $daySummary);
+            }
+            
+            $locationSummary->put($poolName, $poolSummary);
+        }
+
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
+
+        return view('admin.schedules.locations', [
+            'locationSummary' => $locationSummary->sortKeys(),
+            'poolLocations' => $poolLocations
         ]);
     }
 
@@ -332,5 +365,27 @@ class ScheduleController extends Controller
         $schedule->delete();
 
         return redirect()->back()->with('success', 'Sesi kelas berhasil dihapus.');
+    }
+
+    public function updateAvailability(Request $request, \App\Models\CoachAvailability $availability)
+    {
+        $validated = $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+        ]);
+        
+        $availability->update($validated);
+        
+        return redirect()->back()->with('success', 'Blok ketersediaan pelatih berhasil diperbarui.');
+    }
+
+    public function destroyAvailability(\App\Models\CoachAvailability $availability)
+    {
+        if ($availability->schedules()->count() > 0) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus blok waktu karena ada sesi kelas di dalamnya. Hapus sesi kelas terlebih dahulu.');
+        }
+        $availability->delete();
+        
+        return redirect()->back()->with('success', 'Blok ketersediaan pelatih berhasil dihapus.');
     }
 }
