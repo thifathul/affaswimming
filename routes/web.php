@@ -326,11 +326,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/operations/approvals/{scheduleRequest}', [\App\Http\Controllers\Admin\OperationalController::class, 'updateApproval'])->name('admin.operations.updateApproval');
     Route::delete('/admin/operations/approvals/{scheduleRequest}', [\App\Http\Controllers\Admin\OperationalController::class, 'destroyApproval'])->name('admin.operations.destroyApproval');
 
-    // Admin Registration Approvals
-    Route::get('/admin/registrations', [\App\Http\Controllers\Admin\RegistrationApprovalController::class, 'index'])->name('admin.registrations.index');
-    Route::post('/admin/registrations/{id}/approve', [\App\Http\Controllers\Admin\RegistrationApprovalController::class, 'approve'])->name('admin.registrations.approve');
-    Route::post('/admin/registrations/{id}/reject', [\App\Http\Controllers\Admin\RegistrationApprovalController::class, 'reject'])->name('admin.registrations.reject');
-
     // Admin Report Cards
     Route::get('/admin/report-cards', [\App\Http\Controllers\Admin\ReportCardController::class, 'index'])->name('admin.report-cards.index');
     Route::get('/admin/report-cards/{student}', [\App\Http\Controllers\Admin\ReportCardController::class, 'show'])->name('admin.report-cards.show');

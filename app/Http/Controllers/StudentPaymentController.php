@@ -53,7 +53,13 @@ class StudentPaymentController extends Controller
 
         Transaction::create($validated);
 
-        return redirect()->route('student.payments.index')->with('success', 'Bukti pembayaran berhasil diunggah dan sedang menunggu persetujuan.');
+        if (auth()->user()->status === 'pending') {
+            $user = auth()->user();
+            $user->status = 'approved';
+            $user->save();
+        }
+
+        return redirect()->route('student.payments.index')->with('success', 'Bukti pembayaran berhasil diunggah dan sedang menunggu persetujuan admin. Akun Anda sekarang telah aktif sepenuhnya.');
     }
 
     public function receipt(Transaction $transaction)

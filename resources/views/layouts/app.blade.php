@@ -264,9 +264,6 @@
                             <div class="px-4 py-2 mt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Operasional
                             </div>
-                            <a href="{{ route('admin.registrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-user-plus"></i> Approval Registrasi
-                            </a>
                             <a href="{{ route('admin.trials.index') }}" class="sidebar-link {{ request()->routeIs('admin.trials.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-person-swimming"></i> Trial Renang
                             </a>
@@ -322,9 +319,6 @@
                             <div class="px-4 py-2 mt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Operasional
                             </div>
-                            <a href="{{ route('admin.registrations.index') }}" class="sidebar-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-user-plus"></i> Approval Registrasi
-                            </a>
                             <a href="{{ route('admin.trials.index') }}" class="sidebar-link {{ request()->routeIs('admin.trials.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-person-swimming"></i> Trial Renang
                             </a>

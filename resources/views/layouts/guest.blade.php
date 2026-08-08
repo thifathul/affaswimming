@@ -129,7 +129,7 @@
             }
 
             /* Target text inputs and select */
-            input[type="email"], input[type="password"], input[type="text"], input[type="number"], select {
+            input[type="email"], input[type="password"], input[type="text"], input[type="number"], input[type="date"], select {
                 background: rgba(5, 11, 20, 0.8) !important;
                 border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
                 color: #f8fafc !important;
@@ -145,7 +145,13 @@
                 -webkit-appearance: none;
             }
 
-            input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                filter: invert(1);
+                opacity: 0.5;
+                cursor: pointer;
+            }
+
+            input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus {
                 border-color: #D4AF37 !important;
                 box-shadow: 0 0 15px rgba(212, 175, 55, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
                 background: rgba(5, 11, 20, 0.95) !important;
