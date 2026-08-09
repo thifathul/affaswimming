@@ -189,7 +189,7 @@
                     </div>
 
                     <div class="mt-12 pt-6 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
-                        © 2026 SMK Pasundan 1 Bandung.
+                        &copy; {{ date('Y') }} AFFA Swimming.
                     </div>
                 </div>
             </div>

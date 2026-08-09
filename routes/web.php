@@ -162,8 +162,13 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
             $query->where('role', $request->role);
         }
 
-        $users = $query->latest()->get();
-        return view('master.users', compact('users'));
+        $totalUsers = (clone $query)->count();
+        $totalAdmin = (clone $query)->where('role', 'admin')->count();
+        $totalPelatih = (clone $query)->where('role', 'pelatih')->count();
+        $totalMurid = (clone $query)->where('role', 'murid')->count();
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+        return view('master.users', compact('users', 'totalUsers', 'totalAdmin', 'totalPelatih', 'totalMurid'));
     })->name('master.users');
 
     Route::get('/master/users/create', function () {

@@ -40,7 +40,7 @@
                     <div>
                         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pengguna</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-slate-800">{{ $users->count() }}</span>
+                            <span class="text-3xl font-extrabold text-slate-800">{{ $totalUsers }}</span>
                             <span class="text-xs text-slate-500 font-medium">Tergabung</span>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                     <div>
                         <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Total Admin</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-blue-600">{{ $users->where('role', 'admin')->count() }}</span>
+                            <span class="text-3xl font-extrabold text-blue-600">{{ $totalAdmin }}</span>
                             <span class="text-xs text-blue-500/80 font-medium">Petugas</span>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                     <div>
                         <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">Total Pelatih</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-emerald-600">{{ $users->where('role', 'pelatih')->count() }}</span>
+                            <span class="text-3xl font-extrabold text-emerald-600">{{ $totalPelatih }}</span>
                             <span class="text-xs text-emerald-500/80 font-medium">Instruktur</span>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                     <div>
                         <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">Total Murid</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-amber-600">{{ $users->where('role', 'murid')->count() }}</span>
+                            <span class="text-3xl font-extrabold text-amber-600">{{ $totalMurid }}</span>
                             <span class="text-xs text-amber-500/80 font-medium">Siswa</span>
                         </div>
                     </div>
@@ -208,10 +208,14 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <div class="mt-4">
+                    {{ $users->links() }}
+                </div>
 
                 <!-- Footer Copyright from Screenshot -->
                 <div class="mt-12 text-center text-xs text-slate-400 font-medium">
-                    © 2026 SMK Pasundan 1 Bandung.
+                    &copy; {{ date('Y') }} AFFA Swimming.
                 </div>
             </div>
 

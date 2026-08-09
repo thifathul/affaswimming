@@ -14,13 +14,22 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::where(function($q) {
+        $baseQuery = Student::where(function($q) {
             $q->doesntHave('user')
               ->orWhereHas('user', function($q2) {
                   $q2->where('status', '!=', 'pending')->orWhereNull('status');
               });
-        })->with(['user', 'swimClasses', 'schedules.coach'])->latest()->get();
-        return view('master.students.index', compact('students'));
+        });
+
+        $totalStudents = (clone $baseQuery)->count();
+        $totalWithAccount = (clone $baseQuery)->whereNotNull('user_id')->where('status', 'aktif')->count();
+        $totalWithoutAccount = (clone $baseQuery)->where(function($q) {
+            $q->whereNull('user_id')->orWhere('status', 'nonaktif');
+        })->count();
+
+        $students = $baseQuery->with(['user', 'swimClasses', 'schedules.coach'])->latest()->paginate(10)->withQueryString();
+        
+        return view('master.students.index', compact('students', 'totalStudents', 'totalWithAccount', 'totalWithoutAccount'));
     }
 
     /**

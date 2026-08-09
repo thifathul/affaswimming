@@ -31,7 +31,7 @@
                     <div>
                         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Murid</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-slate-800">{{ $students->count() }}</span>
+                            <span class="text-3xl font-extrabold text-slate-800">{{ $totalStudents }}</span>
                             <span class="text-xs text-slate-500 font-medium">Siswa Terdaftar</span>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                     <div>
                         <div class="text-xs font-bold text-blue-500 uppercase tracking-wider">Murid Dengan Akun</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-blue-600">{{ $students->whereNotNull('user_id')->where('status', 'aktif')->count() }}</span>
+                            <span class="text-3xl font-extrabold text-blue-600">{{ $totalWithAccount }}</span>
                             <span class="text-xs text-blue-500/80 font-medium">Aktif & Bisa Login</span>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                     <div>
                         <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">Murid Tanpa Akun / Nonaktif</div>
                         <div class="mt-2 flex items-baseline gap-2">
-                            <span class="text-3xl font-extrabold text-amber-600">{{ $students->filter(fn($s) => is_null($s->user_id) || $s->status === 'nonaktif')->count() }}</span>
+                            <span class="text-3xl font-extrabold text-amber-600">{{ $totalWithoutAccount }}</span>
                             <span class="text-xs text-amber-500/80 font-medium">Tidak Bisa Login</span>
                         </div>
                     </div>
@@ -241,11 +241,10 @@
                                 </tr>
                             @endforelse
                         </tbody>
-                    </table>
                 </div>
-
-                <div class="mt-12 text-center text-xs text-slate-400 font-medium">
-                    © 2026 SMK Pasundan 1 Bandung.
+                
+                <div class="mt-4">
+                    {{ $students->links() }}
                 </div>
 
             </div>
