@@ -83,6 +83,9 @@
                                 <i class="fa-solid fa-upload"></i>
                             </button>
                         </form>
+                        <a href="{{ route('master.students.export') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-bold text-sm rounded-xl transition-all shadow-sm" title="Export Data Murid">
+                            <i class="fa-solid fa-download"></i> Export
+                        </a>
                         <a href="{{ route('master.students.import.template') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition-all shadow-sm" title="Download Template CSV">
                             <i class="fa-solid fa-file-csv text-blue-600"></i> Template
                         </a>

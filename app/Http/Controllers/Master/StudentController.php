@@ -39,6 +39,7 @@ class StudentController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'gender' => 'nullable|in:Laki-laki,Perempuan',
             'birth_place_date' => 'required|string|max:255',
             'age' => 'required|integer|min:1|max:100',
             'school' => 'required|string|max:255',
@@ -62,6 +63,7 @@ class StudentController extends Controller
 
         $student = Student::create([
             'name' => $request->name,
+            'gender' => $request->gender,
             'birth_place_date' => $request->birth_place_date,
             'age' => $request->age,
             'school' => $request->school,
@@ -92,6 +94,7 @@ class StudentController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'gender' => 'nullable|in:Laki-laki,Perempuan',
             'birth_place_date' => 'required|string|max:255',
             'age' => 'required|integer|min:1|max:100',
             'school' => 'required|string|max:255',
@@ -117,6 +120,7 @@ class StudentController extends Controller
                     'email' => $request->email,
                     'password' => \Illuminate\Support\Facades\Hash::make('123456'),
                     'role' => 'murid',
+                    'status' => 'approved',
                 ]);
                 $userId = $user->id;
             }
@@ -127,6 +131,7 @@ class StudentController extends Controller
 
         $student->update([
             'name' => $request->name,
+            'gender' => $request->gender,
             'birth_place_date' => $request->birth_place_date,
             'age' => $request->age,
             'school' => $request->school,
@@ -178,13 +183,13 @@ class StudentController extends Controller
             "Expires"             => "0"
         );
 
-        $columns = array('Nama Siswa', 'Tempat, Tanggal Lahir', 'Usia', 'Sekolah', 'Email (Opsional)');
+        $columns = array('Nama Siswa', 'Jenis Kelamin (Laki-laki/Perempuan)', 'Tempat, Tanggal Lahir', 'Usia', 'Sekolah', 'Email (Opsional)');
 
         $callback = function() use($columns) {
             $file = fopen('php://output', 'w');
             fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); // BOM for Excel
             fputcsv($file, $columns, ';');
-            fputcsv($file, ['Budi Santoso', 'Bandung, 12 Agustus 2010', '10', 'SDN 1 Bandung', 'budi@example.com'], ';');
+            fputcsv($file, ['Budi Santoso', 'Laki-laki', 'Bandung, 12 Agustus 2010', '10', 'SDN 1 Bandung', 'budi@example.com'], ';');
             fclose($file);
         };
 
@@ -220,12 +225,13 @@ class StudentController extends Controller
             $delimiter = strpos($raw_string, ';') !== false ? ';' : ',';
             $data = str_getcsv($raw_string, $delimiter);
 
-            if (count($data) >= 4) {
+            if (count($data) >= 5) {
                 $name = trim($data[0]);
-                $birthPlaceDate = trim($data[1]);
-                $age = trim($data[2]);
-                $school = trim($data[3]);
-                $email = isset($data[4]) ? trim($data[4]) : null;
+                $gender = trim($data[1]);
+                $birthPlaceDate = trim($data[2]);
+                $age = trim($data[3]);
+                $school = trim($data[4]);
+                $email = isset($data[5]) ? trim($data[5]) : null;
 
                 if (empty($name) || empty($birthPlaceDate) || empty($age) || empty($school)) {
                     continue;
@@ -240,6 +246,7 @@ class StudentController extends Controller
                             'email' => $email,
                             'password' => \Illuminate\Support\Facades\Hash::make('123456'),
                             'role' => 'murid',
+                            'status' => 'approved',
                         ]);
                         $userId = $user->id;
                     } else {
@@ -249,6 +256,7 @@ class StudentController extends Controller
 
                 Student::create([
                     'name' => $name,
+                    'gender' => in_array(ucfirst(strtolower($gender)), ['Laki-laki', 'Perempuan']) ? ucfirst(strtolower($gender)) : null,
                     'birth_place_date' => $birthPlaceDate,
                     'age' => is_numeric($age) ? $age : null,
                     'school' => $school,
@@ -262,5 +270,49 @@ class StudentController extends Controller
         fclose($handle);
 
         return redirect()->route('master.students.index')->with('success', "$successCount data murid berhasil diimport.");
+    }
+
+    public function exportData()
+    {
+        $fileName = "Data_Murid_" . date('Ymd_His') . ".csv";
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $students = Student::with(['user', 'swimClasses', 'schedules.coach'])->get();
+        $columns = array('ID', 'Nama Siswa', 'Jenis Kelamin', 'Tempat, Tanggal Lahir', 'Usia', 'Sekolah', 'Status', 'Email', 'Kelas Berenang', 'Pelatih');
+
+        $callback = function() use($students, $columns) {
+            $file = fopen('php://output', 'w');
+            fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF))); // BOM for Excel
+            fputcsv($file, $columns, ';');
+
+            foreach ($students as $student) {
+                $swimClasses = $student->swimClasses->pluck('name')->implode(', ');
+                $coaches = $student->schedules->pluck('coach.name')->unique()->implode(', ');
+                $email = $student->user ? $student->user->email : '';
+
+                fputcsv($file, [
+                    'AFFA-M-' . str_pad($student->id, 4, '0', STR_PAD_LEFT),
+                    $student->name,
+                    $student->gender ?? '-',
+                    $student->birth_place_date ?? '-',
+                    $student->age ?? '-',
+                    $student->school ?? '-',
+                    $student->status,
+                    $email,
+                    $swimClasses,
+                    $coaches
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

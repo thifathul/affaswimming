@@ -237,6 +237,7 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::patch('students/{student}/toggle-status', [\App\Http\Controllers\Master\StudentController::class, 'toggleStatus'])->name('master.students.toggle-status');
     Route::post('students/import', [\App\Http\Controllers\Master\StudentController::class, 'importData'])->name('master.students.import');
     Route::get('students/import/template', [\App\Http\Controllers\Master\StudentController::class, 'downloadTemplate'])->name('master.students.import.template');
+    Route::get('students/export', [\App\Http\Controllers\Master\StudentController::class, 'exportData'])->name('master.students.export');
     Route::resource('students', \App\Http\Controllers\Master\StudentController::class)->names([
         'index' => 'master.students.index',
         'create' => 'master.students.create',
