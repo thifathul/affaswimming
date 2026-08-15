@@ -222,10 +222,15 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Assign Murid (Bisa pilih lebih dari satu)</label>
-                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <label class="block text-sm font-medium text-slate-700">Assign Murid (Bisa pilih lebih dari satu)</label>
+                                        </div>
+                                        <div class="mb-2">
+                                            <input type="text" id="createStudentSearch" placeholder="Cari nama murid..." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+                                        </div>
+                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="createStudentList">
                                             @foreach($students as $student)
-                                                <div class="flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors">
+                                                <div class="create-student-item flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors" data-name="{{ strtolower($student->name) }}">
                                                     <input id="c_student_{{ $student->id }}" name="student_ids[]" type="checkbox" value="{{ $student->id }}" class="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2">
                                                     <label for="c_student_{{ $student->id }}" class="ms-2 text-sm font-medium text-slate-700 flex-1 cursor-pointer">
                                                         {{ $student->name }} <span class="text-xs text-slate-500 font-normal ml-1">({{ $student->school ?? '-' }})</span>
@@ -294,10 +299,15 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700 mb-2">Murid (Bisa pilih lebih dari satu)</label>
-                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <label class="block text-sm font-medium text-slate-700">Murid (Bisa pilih lebih dari satu)</label>
+                                        </div>
+                                        <div class="mb-2">
+                                            <input type="text" id="editStudentSearch" placeholder="Cari nama murid..." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+                                        </div>
+                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="editStudentList">
                                             @foreach($students as $student)
-                                                <div class="flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors">
+                                                <div class="edit-student-item flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors" data-name="{{ strtolower($student->name) }}">
                                                     <input id="student_{{ $student->id }}" name="student_ids[]" type="checkbox" value="{{ $student->id }}" data-name="{{ $student->name }}" class="student-checkbox w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2">
                                                     <label for="student_{{ $student->id }}" class="ms-2 text-sm font-medium text-slate-700 flex-1 cursor-pointer">
                                                         {{ $student->name }} <span class="text-xs text-slate-500 font-normal ml-1">({{ $student->school ?? '-' }})</span>
@@ -450,6 +460,36 @@
                     }
                 }
             }
+        });
+
+        // Search logic for Create Modal
+        document.getElementById('createStudentSearch')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const studentItems = document.querySelectorAll('.create-student-item');
+            
+            studentItems.forEach(item => {
+                const studentName = item.getAttribute('data-name');
+                if (studentName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Search logic for Edit Modal
+        document.getElementById('editStudentSearch')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const studentItems = document.querySelectorAll('.edit-student-item');
+            
+            studentItems.forEach(item => {
+                const studentName = item.getAttribute('data-name');
+                if (studentName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         });
     </script>
 </x-app-layout>
