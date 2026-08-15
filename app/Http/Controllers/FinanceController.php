@@ -436,7 +436,7 @@ class FinanceController extends Controller
 
     public function profit(Request $request)
     {
-        $month = $request->input('month', now()->format('Y-m'));
+        $month = $request->input('month');
         
         $incomesQuery = Transaction::with('student.user')->where('status', 'approved');
         $expensesQuery = OperationalExpense::query();
@@ -571,7 +571,7 @@ class FinanceController extends Controller
 
     public function exportProfit(Request $request)
     {
-        $month = $request->input('month', now()->format('Y-m'));
+        $month = $request->input('month');
         
         $incomesQuery = Transaction::with('student.user')->where('status', 'approved');
         $expensesQuery = OperationalExpense::query();
