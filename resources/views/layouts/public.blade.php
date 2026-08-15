@@ -886,13 +886,13 @@
                                 </a>
                             @else
                                 @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="btn-register">
+                                    <a href="https://wa.me/6282128199210?text=Halo%20Admin,%20saya%20ingin%20bergabung%20dengan%20Affa%20Swimming%20Club." target="_blank" class="btn-register">
                                         <i class="fa-solid fa-user-plus"></i> Gabung Club
                                     </a>
                                 @endif
                             @endauth
                         @else
-                            <a href="/register" class="btn-register">
+                            <a href="https://wa.me/6282128199210?text=Halo%20Admin,%20saya%20ingin%20bergabung%20dengan%20Affa%20Swimming%20Club." target="_blank" class="btn-register">
                                 <i class="fa-solid fa-user-plus"></i> Gabung Club
                             </a>
                         @endif
