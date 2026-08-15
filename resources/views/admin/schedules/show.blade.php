@@ -228,7 +228,7 @@
                                         <div class="mb-2">
                                             <input type="text" id="createStudentSearch" placeholder="Cari nama murid..." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
                                         </div>
-                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="createStudentList">
+                                        <div class="overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="createStudentList" style="max-height: 250px;">
                                             @foreach($students as $student)
                                                 <div class="create-student-item flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors" data-name="{{ strtolower($student->name) }}">
                                                     <input id="c_student_{{ $student->id }}" name="student_ids[]" type="checkbox" value="{{ $student->id }}" class="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2">
@@ -305,7 +305,7 @@
                                         <div class="mb-2">
                                             <input type="text" id="editStudentSearch" placeholder="Cari nama murid..." class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
                                         </div>
-                                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="editStudentList">
+                                        <div class="overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50" id="editStudentList" style="max-height: 250px;">
                                             @foreach($students as $student)
                                                 <div class="edit-student-item flex items-center mb-2 last:mb-0 bg-white p-2 border border-slate-100 rounded-md hover:bg-blue-50/50 transition-colors" data-name="{{ strtolower($student->name) }}">
                                                     <input id="student_{{ $student->id }}" name="student_ids[]" type="checkbox" value="{{ $student->id }}" data-name="{{ $student->name }}" class="student-checkbox w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 focus:ring-2">
