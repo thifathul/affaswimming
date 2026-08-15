@@ -486,7 +486,87 @@ class FinanceController extends Controller
             return $item;
         });
 
-        return view('finance.profit.index', compact('profit_data', 'month', 'previousBalance'));
+        // ---------------------------------------------------------
+        // Calculate Spreadsheet Summary
+        // ---------------------------------------------------------
+        $spreadsheet_summary = [
+            'pelatih' => ['terkumpul' => 0, 'terpakai' => 0, 'saldo' => 0],
+            'keuntungan' => ['terkumpul' => 0, 'terpakai' => 0, 'saldo' => 0],
+            'kas' => ['terkumpul' => 0, 'terpakai' => 0, 'saldo' => 0],
+            'locations' => []
+        ];
+
+        // 1. Incomes (Terkumpul)
+        $incomeSumQuery = Transaction::where('status', 'approved');
+        if ($month) {
+            $year = substr($month, 0, 4);
+            $mon = substr($month, 5, 2);
+            $incomeSumQuery->whereYear('transactions.updated_at', $year)->whereMonth('transactions.updated_at', $mon);
+        }
+
+        $overallIncomes = (clone $incomeSumQuery)
+            ->selectRaw('SUM(coach_salary_cut) as total_pelatih, SUM(profit_cut) as total_keuntungan, SUM(cash_cut) as total_kas')
+            ->first();
+
+        $spreadsheet_summary['pelatih']['terkumpul'] = $overallIncomes->total_pelatih ?? 0;
+        $spreadsheet_summary['keuntungan']['terkumpul'] = $overallIncomes->total_keuntungan ?? 0;
+        $spreadsheet_summary['kas']['terkumpul'] = $overallIncomes->total_kas ?? 0;
+
+        $locationIncomes = (clone $incomeSumQuery)
+            ->join('pool_locations', 'transactions.pool_location_id', '=', 'pool_locations.id')
+            ->selectRaw('pool_locations.name as pool_name, SUM(transactions.pool_ticket_cut) as total_ticket')
+            ->groupBy('pool_locations.name')
+            ->havingRaw('SUM(transactions.pool_ticket_cut) > 0')
+            ->get();
+
+        foreach ($locationIncomes as $loc) {
+            $spreadsheet_summary['locations'][$loc->pool_name] = [
+                'terkumpul' => $loc->total_ticket ?? 0,
+                'terpakai' => 0,
+                'saldo' => 0
+            ];
+        }
+
+        // 2. Expenses (Terpakai)
+        $expenseSumQuery = OperationalExpense::query();
+        if ($month) {
+            $year = substr($month, 0, 4);
+            $mon = substr($month, 5, 2);
+            $expenseSumQuery->whereYear('expense_date', $year)->whereMonth('expense_date', $mon);
+        }
+
+        $spreadsheet_summary['pelatih']['terpakai'] = (clone $expenseSumQuery)->where('keyword', 'gaji')->sum('amount') ?? 0;
+        $spreadsheet_summary['keuntungan']['terpakai'] = 0; // User request: leave empty/zero
+        $spreadsheet_summary['kas']['terpakai'] = (clone $expenseSumQuery)->where('keyword', 'kas')->sum('amount') ?? 0;
+
+        $locationExpenses = (clone $expenseSumQuery)
+            ->where('keyword', 'tiket')
+            ->join('pool_locations', 'operational_expenses.pool_location_id', '=', 'pool_locations.id')
+            ->selectRaw('pool_locations.name as pool_name, SUM(operational_expenses.amount) as total_expense')
+            ->groupBy('pool_locations.name')
+            ->get();
+
+        foreach ($locationExpenses as $loc) {
+            if (!isset($spreadsheet_summary['locations'][$loc->pool_name])) {
+                $spreadsheet_summary['locations'][$loc->pool_name] = [
+                    'terkumpul' => 0,
+                    'terpakai' => 0,
+                    'saldo' => 0
+                ];
+            }
+            $spreadsheet_summary['locations'][$loc->pool_name]['terpakai'] = $loc->total_expense ?? 0;
+        }
+
+        // 3. Saldo
+        $spreadsheet_summary['pelatih']['saldo'] = $spreadsheet_summary['pelatih']['terkumpul'] - $spreadsheet_summary['pelatih']['terpakai'];
+        $spreadsheet_summary['keuntungan']['saldo'] = $spreadsheet_summary['keuntungan']['terkumpul'] - $spreadsheet_summary['keuntungan']['terpakai'];
+        $spreadsheet_summary['kas']['saldo'] = $spreadsheet_summary['kas']['terkumpul'] - $spreadsheet_summary['kas']['terpakai'];
+
+        foreach ($spreadsheet_summary['locations'] as $name => &$data) {
+            $data['saldo'] = $data['terkumpul'] - $data['terpakai'];
+        }
+
+        return view('finance.profit.index', compact('profit_data', 'month', 'previousBalance', 'spreadsheet_summary'));
     }
 
     public function exportProfit(Request $request)

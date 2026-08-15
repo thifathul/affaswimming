@@ -12,7 +12,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100 p-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">Buku Besar Transaksi</h3>
+                        <h3 class="text-lg font-bold text-slate-800">Laporan Keuangan</h3>
                         <p class="text-sm text-slate-500">Rekapitulasi seluruh pemasukan, pengeluaran, dan saldo akhir operasional.</p>
                     </div>
 
@@ -35,6 +35,72 @@
                             Rp {{ number_format(isset($profit_data) && $profit_data->last() ? $profit_data->last()['balance'] : $previousBalance, 0, ',', '.') }}
                         </p>
                     </div>
+                </div>
+
+                @if(isset($spreadsheet_summary))
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Rekapitulasi Saldo</h3>
+                    <div class="overflow-x-auto rounded-xl border border-slate-300 shadow-sm">
+                        <table class="w-full text-center border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="border border-slate-300 bg-white px-4 py-2 w-32"></th>
+                                    <th class="border border-slate-300 bg-blue-100 text-slate-700 font-bold px-4 py-3">Pelatih</th>
+                                    <th class="border border-slate-300 bg-yellow-100 text-slate-700 font-bold px-4 py-3">Keuntungan</th>
+                                    <th class="border border-slate-300 bg-red-200 text-slate-700 font-bold px-4 py-3">Kas</th>
+                                    @foreach($spreadsheet_summary['locations'] as $poolName => $locData)
+                                        <th class="border border-slate-300 bg-orange-200 text-slate-700 font-bold px-4 py-3 uppercase">TIKET {{ $poolName }}</th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <!-- Terkumpul -->
+                                <tr>
+                                    <td class="border border-slate-300 font-bold bg-white text-left px-4 py-3 uppercase">Terkumpul</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['pelatih']['terkumpul'], 0, ',', '.') }}</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['keuntungan']['terkumpul'], 0, ',', '.') }}</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['kas']['terkumpul'], 0, ',', '.') }}</td>
+                                    @foreach($spreadsheet_summary['locations'] as $poolName => $locData)
+                                        <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($locData['terkumpul'], 0, ',', '.') }}</td>
+                                    @endforeach
+                                </tr>
+                                <!-- Terpakai -->
+                                <tr>
+                                    <td class="border border-slate-300 font-bold bg-white text-left px-4 py-3 uppercase">Terpakai</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">
+                                        {{ $spreadsheet_summary['pelatih']['terpakai'] != 0 ? 'Rp' . number_format($spreadsheet_summary['pelatih']['terpakai'], 0, ',', '.') : '' }}
+                                    </td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">
+                                        {{ $spreadsheet_summary['keuntungan']['terpakai'] != 0 ? 'Rp' . number_format($spreadsheet_summary['keuntungan']['terpakai'], 0, ',', '.') : '' }}
+                                    </td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">
+                                        {{ $spreadsheet_summary['kas']['terpakai'] != 0 ? 'Rp' . number_format($spreadsheet_summary['kas']['terpakai'], 0, ',', '.') : '' }}
+                                    </td>
+                                    @foreach($spreadsheet_summary['locations'] as $poolName => $locData)
+                                        <td class="border border-slate-300 px-4 py-3 bg-white">
+                                            {{ $locData['terpakai'] != 0 ? 'Rp' . number_format($locData['terpakai'], 0, ',', '.') : '' }}
+                                        </td>
+                                    @endforeach
+                                </tr>
+                                <!-- Saldo -->
+                                <tr>
+                                    <td class="border border-slate-300 font-bold bg-white text-left px-4 py-3 uppercase">Saldo</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['pelatih']['saldo'], 0, ',', '.') }}</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['keuntungan']['saldo'], 0, ',', '.') }}</td>
+                                    <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($spreadsheet_summary['kas']['saldo'], 0, ',', '.') }}</td>
+                                    @foreach($spreadsheet_summary['locations'] as $poolName => $locData)
+                                        <td class="border border-slate-300 px-4 py-3 bg-white">Rp{{ number_format($locData['saldo'], 0, ',', '.') }}</td>
+                                    @endforeach
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endif
+
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-slate-800">Buku Besar Transaksi</h3>
+                    <p class="text-sm text-slate-500">Rincian mutasi (pemasukan & pengeluaran).</p>
                 </div>
 
                 @if($profit_data->isEmpty())
