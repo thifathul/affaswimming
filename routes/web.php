@@ -306,6 +306,7 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::get('/finance/students/expired', [\App\Http\Controllers\FinanceController::class, 'expiredStudents'])->name('finance.students.expired');
     Route::get('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'expenses'])->name('finance.expenses.index');
     Route::post('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+    Route::put('/finance/expenses/{expense}', [\App\Http\Controllers\FinanceController::class, 'updateExpense'])->name('finance.expenses.update');
     Route::delete('/finance/expenses/{expense}', [\App\Http\Controllers\FinanceController::class, 'destroyExpense'])->name('finance.expenses.destroy');
     
     // Unpaid Students
@@ -313,6 +314,7 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
 
     Route::get('/finance/incomes', [\App\Http\Controllers\FinanceController::class, 'incomes'])->name('finance.incomes.index');
     Route::post('/finance/incomes', [\App\Http\Controllers\FinanceController::class, 'storeIncome'])->name('finance.incomes.store');
+    Route::put('/finance/incomes/{transaction}', [\App\Http\Controllers\FinanceController::class, 'updateIncome'])->name('finance.incomes.update');
     Route::delete('/finance/incomes/{transaction}', [\App\Http\Controllers\FinanceController::class, 'destroyIncome'])->name('finance.incomes.destroy');
     
     Route::get('/finance/profit', [\App\Http\Controllers\FinanceController::class, 'profit'])->name('finance.profit');

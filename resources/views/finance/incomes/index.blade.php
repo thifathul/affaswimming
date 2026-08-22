@@ -58,7 +58,7 @@
                                             <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Kas</th>
                                             <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Tiket</th>
                                             <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Keuntungan</th>
-                                            @if(auth()->user()->role === 'master')
+                                            @if(auth()->user()->role === 'master' || auth()->user()->role === 'admin')
                                                 <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Aksi</th>
                                             @endif
                                         </tr>
@@ -90,15 +90,20 @@
                                                 <td class="py-3 px-4 text-sm font-bold text-emerald-600 text-right whitespace-nowrap">
                                                     {{ number_format($inc->profit_cut, 0, ',', '.') }}
                                                 </td>
-                                                @if(auth()->user()->role === 'master')
+                                                @if(auth()->user()->role === 'master' || auth()->user()->role === 'admin')
                                                     <td class="py-3 px-4 text-sm text-center">
-                                                        <form action="{{ route('finance.incomes.destroy', $inc) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus catatan pemasukan ini?');" class="inline-block">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="text-rose-500 hover:text-rose-700 transition" title="Hapus">
-                                                                <i class="fa-solid fa-trash-can"></i>
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" onclick="openEditIncomeModal({{ $inc->id }}, '{{ addslashes($inc->student_id ? ($inc->student->name ?? '') : ($inc->manual_student_name ?? '')) }}', '{{ \Carbon\Carbon::parse($inc->updated_at)->format('Y-m-d') }}', '{{ \Carbon\Carbon::parse($inc->practice_start_date)->format('Y-m-d') }}', {{ $inc->pool_location_id }}, {{ $inc->amount }}, '{{ $inc->payment_method }}')" class="text-blue-500 hover:text-blue-700 transition mr-2" title="Edit">
+                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                        </button>
+                                                        @if(auth()->user()->role === 'master')
+                                                            <form action="{{ route('finance.incomes.destroy', $inc) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus catatan pemasukan ini?');" class="inline-block">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="text-rose-500 hover:text-rose-700 transition" title="Hapus">
+                                                                    <i class="fa-solid fa-trash-can"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                     </td>
                                                 @endif
                                             </tr>
@@ -112,7 +117,7 @@
                                             <th class="py-3 px-4 text-sm font-bold text-amber-700 text-right whitespace-nowrap">{{ number_format($incomes->sum('cash_cut'), 0, ',', '.') }}</th>
                                             <th class="py-3 px-4 text-sm font-bold text-rose-600 text-right whitespace-nowrap">{{ number_format($incomes->sum('pool_ticket_cut'), 0, ',', '.') }}</th>
                                             <th class="py-3 px-4 text-sm font-bold text-emerald-700 text-right whitespace-nowrap">{{ number_format($incomes->sum('profit_cut'), 0, ',', '.') }}</th>
-                                            @if(auth()->user()->role === 'master')
+                                            @if(auth()->user()->role === 'master' || auth()->user()->role === 'admin')
                                                 <th></th>
                                             @endif
                                         </tr>
@@ -165,7 +170,7 @@
                             </div>
                             <div>
                                 <label for="amount" class="block text-sm font-semibold text-slate-700 mb-1.5">Harga / Total Pembayaran (Rp)</label>
-                                <input type="number" id="amount" name="amount" required min="0" placeholder="Contoh: 350000" class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                <input type="text" id="amount" name="amount" required placeholder="Contoh: 350.000" class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                             </div>
                             <div>
                                 <label for="payment_method" class="block text-sm font-semibold text-slate-700 mb-1.5">Metode Pembayaran</label>
@@ -190,4 +195,114 @@
             </div>
         </div>
     </div>
+    <!-- Modal Edit Pemasukan -->
+    <div id="editIncomeModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full border border-slate-100">
+                <form id="editIncomeForm" action="" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="bg-white px-6 pt-6 pb-6">
+                        <div class="flex justify-between items-center mb-5 pb-4 border-b border-slate-100">
+                            <h3 class="text-lg font-bold text-slate-800">Edit Pemasukan</h3>
+                            <button type="button" onclick="document.getElementById('editIncomeModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="edit_manual_student_name" class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Murid</label>
+                                <input type="text" id="edit_manual_student_name" name="manual_student_name" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="edit_payment_date" class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Pembayaran</label>
+                                <input type="date" id="edit_payment_date" name="payment_date" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="edit_practice_start_date" class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Mulai</label>
+                                <input type="date" id="edit_practice_start_date" name="practice_start_date" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="edit_pool_location_id" class="block text-sm font-semibold text-slate-700 mb-1.5">Paket</label>
+                                <select id="edit_pool_location_id" name="pool_location_id" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    <option value="">-- Pilih Paket & Lokasi --</option>
+                                    @foreach($poolLocations as $pool)
+                                        <option value="{{ $pool->id }}">{{ $pool->package_name }} - {{ $pool->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="edit_amount" class="block text-sm font-semibold text-slate-700 mb-1.5">Harga / Total Pembayaran (Rp)</label>
+                                <input type="text" id="edit_amount" name="amount" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            </div>
+                            <div>
+                                <label for="edit_payment_method" class="block text-sm font-semibold text-slate-700 mb-1.5">Metode Pembayaran</label>
+                                <select id="edit_payment_method" name="payment_method" required class="w-full rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    <option value="">-- Pilih Metode --</option>
+                                    <option value="Bank BCAS">Bank BCAS</option>
+                                    <option value="Bank BSI">Bank BSI</option>
+                                    <option value="Cash">Cash (Tunai)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-4 flex justify-end gap-3 rounded-b-2xl border-t border-slate-100">
+                        <button type="button" onclick="document.getElementById('editIncomeModal').classList.add('hidden')" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-semibold text-sm rounded-xl hover:bg-slate-50 transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-semibold text-sm rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openEditIncomeModal(id, studentName, paymentDate, practiceStartDate, poolId, amount, paymentMethod) {
+            document.getElementById('editIncomeForm').action = `/finance/incomes/${id}`;
+            document.getElementById('edit_manual_student_name').value = studentName;
+            document.getElementById('edit_payment_date').value = paymentDate;
+            document.getElementById('edit_practice_start_date').value = practiceStartDate;
+            document.getElementById('edit_pool_location_id').value = poolId;
+            document.getElementById('edit_amount').value = formatRupiah(amount.toString());
+            document.getElementById('edit_payment_method').value = paymentMethod;
+            
+            document.getElementById('editIncomeModal').classList.remove('hidden');
+        }
+
+        function formatRupiah(angka) {
+            var number_string = angka.replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var amountInput = document.getElementById('amount');
+            if(amountInput) {
+                amountInput.addEventListener('keyup', function(e) {
+                    this.value = formatRupiah(this.value);
+                });
+            }
+
+            var editAmountInput = document.getElementById('edit_amount');
+            if(editAmountInput) {
+                editAmountInput.addEventListener('keyup', function(e) {
+                    this.value = formatRupiah(this.value);
+                });
+            }
+        });
+    </script>
 </x-app-layout>

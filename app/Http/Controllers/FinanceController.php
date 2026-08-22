@@ -337,6 +337,10 @@ class FinanceController extends Controller
 
     public function storeIncome(Request $request)
     {
+        $request->merge([
+            'amount' => $request->amount ? str_replace('.', '', $request->amount) : null,
+        ]);
+
         $validated = $request->validate([
             'manual_student_name' => 'required|string|max:255',
             'practice_start_date' => 'required|date',
@@ -395,6 +399,69 @@ class FinanceController extends Controller
         $transaction->save();
 
         return redirect()->back()->with('success', 'Pemasukan berhasil ditambahkan.');
+    }
+
+    public function updateIncome(Request $request, Transaction $transaction)
+    {
+        $request->merge([
+            'amount' => $request->amount ? str_replace('.', '', $request->amount) : null,
+        ]);
+
+        $validated = $request->validate([
+            'manual_student_name' => 'required|string|max:255',
+            'practice_start_date' => 'required|date',
+            'payment_date' => 'required|date',
+            'pool_location_id' => 'required|exists:pool_locations,id',
+            'amount' => 'required|numeric|min:0',
+            'payment_method' => 'required|string',
+        ]);
+
+        $pool = \App\Models\PoolLocation::find($validated['pool_location_id']);
+
+        // Hitung Gaji
+        $meetings = $pool->meeting_count ?? 4;
+        $coachSalary = $pool->coach_fee * $meetings;
+
+        // Hitung Tiket
+        $poolTicket = 0;
+        $poolName = strtolower($pool->name);
+        if (str_contains($poolName, 'saraga')) {
+            $poolTicket = ($pool->private_ticket_price ?? 80000);
+        } elseif (str_contains($poolName, 'cipaku')) {
+            $poolTicket = 70000;
+        }
+
+        // Hitung Kas
+        $cashCut = 0;
+        if (str_contains($poolName, 'hv')) {
+            $cashCut = $validated['amount'] * 0.10;
+        } else {
+            $cashCut = $validated['amount'] * ($pool->cash_percentage / 100);
+        }
+
+        // Hitung Keuntungan
+        $profitCut = $validated['amount'] - $coachSalary - $cashCut;
+        if ($poolTicket > 0) {
+            $profitCut -= $poolTicket;
+        }
+
+        $transaction->update([
+            'manual_student_name' => $validated['manual_student_name'],
+            'practice_start_date' => $validated['practice_start_date'],
+            'pool_location_id' => $validated['pool_location_id'],
+            'amount' => $validated['amount'],
+            'payment_method' => $validated['payment_method'],
+            'coach_salary_cut' => $coachSalary,
+            'pool_ticket_cut' => $poolTicket,
+            'cash_cut' => $cashCut,
+            'profit_cut' => $profitCut,
+        ]);
+        
+        $transaction->timestamps = false;
+        $transaction->updated_at = $validated['payment_date'] . ' ' . now()->format('H:i:s');
+        $transaction->save();
+
+        return redirect()->back()->with('success', 'Pemasukan berhasil diperbarui.');
     }
 
     public function incomes(Request $request)
@@ -668,6 +735,10 @@ class FinanceController extends Controller
 
     public function storeExpense(Request $request)
     {
+        $request->merge([
+            'amount' => $request->amount ? str_replace('.', '', $request->amount) : null,
+        ]);
+
         $validated = $request->validate([
             'pool_location_id' => 'nullable|exists:pool_locations,id',
             'keyword' => 'required|string|max:255',
@@ -679,6 +750,25 @@ class FinanceController extends Controller
         OperationalExpense::create($validated);
 
         return redirect()->route('finance.expenses.index')->with('success', 'Pengeluaran operasional berhasil dicatat.');
+    }
+
+    public function updateExpense(Request $request, \App\Models\OperationalExpense $expense)
+    {
+        $request->merge([
+            'amount' => $request->amount ? str_replace('.', '', $request->amount) : null,
+        ]);
+
+        $validated = $request->validate([
+            'pool_location_id' => 'nullable|exists:pool_locations,id',
+            'keyword' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+            'expense_date' => 'required|date',
+        ]);
+
+        $expense->update($validated);
+
+        return redirect()->route('finance.expenses.index')->with('success', 'Pengeluaran operasional berhasil diperbarui.');
     }
 
     public function destroyExpense(\App\Models\OperationalExpense $expense)
