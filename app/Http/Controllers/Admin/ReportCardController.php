@@ -17,9 +17,10 @@ class ReportCardController extends Controller
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereHas('user', function ($u) use ($search) {
-                    $u->where('name', 'like', '%' . $search . '%');
-                })->orWhere('parent_name', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($u) use ($search) {
+                      $u->where('name', 'like', '%' . $search . '%');
+                  });
             });
         }
 
