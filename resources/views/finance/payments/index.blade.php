@@ -146,7 +146,7 @@
                                                         </a>
                                                     @endif
 
-                                                    @if(auth()->user()->role === 'master')
+                                                    @if(auth()->user()->role === 'master' || auth()->user()->role === 'admin')
                                                         <form action="{{ route('finance.payments.destroy', $trx->id) }}" method="POST" class="ml-2">
                                                             @csrf
                                                             @method('DELETE')
