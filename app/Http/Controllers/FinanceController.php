@@ -172,7 +172,10 @@ class FinanceController extends Controller
         ]);
         
         $meetings = $transaction->poolLocation->meeting_count ?? 4;
-        $transaction->student->increment('remaining_meetings', $meetings); // Tambahkan jumlah pertemuan sesuai paket
+        $currentMeetings = $transaction->student->remaining_meetings ?? 0;
+        $transaction->student->update([
+            'remaining_meetings' => $currentMeetings + $meetings
+        ]); // Tambahkan jumlah pertemuan sesuai paket
 
         return redirect()->back()->with('success', 'Pembayaran berhasil disetujui dan paket telah diaktifkan.');
     }
