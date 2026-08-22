@@ -14,10 +14,8 @@ Route::get('/', function () {
     
     // Dynamic Stats
     $totalCoaches = \App\Models\User::where('role', 'pelatih')->count();
-    $activeStudents = \App\Models\Student::where('remaining_meetings', '>', 0)
-                        ->whereDate('package_active_until', '>=', now())
-                        ->count();
-    $totalAlumni = \App\Models\Student::count();
+    $activeStudents = \App\Models\Student::where('status', 'aktif')->count();
+    $totalAlumni = \App\Models\Student::where('status', 'nonaktif')->count();
 
     return view('welcome', compact('articles', 'teams', 'landingTitle', 'landingSubtitle', 'totalCoaches', 'activeStudents', 'totalAlumni'));
 });
@@ -107,9 +105,7 @@ Route::middleware(['auth', 'role:master'])->group(function () {
         $totalExpenses = $operationalExpenses + $coachSalaryExpenses;
 
         // Jumlah Murid Aktif
-        $activeStudents = \App\Models\Student::where('remaining_meetings', '>', 0)
-            ->whereDate('package_active_until', '>=', \Carbon\Carbon::today())
-            ->count();
+        $activeStudents = \App\Models\Student::where('status', 'aktif')->count();
 
         // Distribusi Paket per Kolam
         $packageDistribution = \Illuminate\Support\Facades\DB::table('transactions')
