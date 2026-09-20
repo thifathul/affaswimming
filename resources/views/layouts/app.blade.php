@@ -282,6 +282,9 @@
                             <div class="px-4 py-2 mt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Keuangan
                             </div>
+                            <a href="{{ route('finance.billing.index') }}" class="sidebar-link {{ request()->routeIs('finance.billing.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice"></i> Billing Murid
+                            </a>
                             <a href="{{ route('finance.payments.index') }}" class="sidebar-link {{ request()->routeIs('finance.payments.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-file-invoice-dollar"></i> Pembayaran Paket
                             </a>
@@ -343,6 +346,9 @@
                             <div class="px-4 py-2 mt-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Keuangan
                             </div>
+                            <a href="{{ route('finance.billing.index') }}" class="sidebar-link {{ request()->routeIs('finance.billing.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice"></i> Billing Murid
+                            </a>
                             <a href="{{ route('finance.payments.index') }}" class="sidebar-link {{ request()->routeIs('finance.payments.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-file-invoice-dollar"></i> Pembayaran Paket
                             </a>

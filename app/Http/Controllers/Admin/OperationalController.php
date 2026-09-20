@@ -97,6 +97,9 @@ class OperationalController extends Controller
     public function dailyRecap(Request $request)
     {
         $date = $request->get('date');
+        $month = $request->get('month', date('m'));
+        $year = $request->get('year', date('Y'));
+        $coach_id = $request->get('coach_id');
 
         $query = TrainingReport::with(['coach', 'schedule.coach', 'schedule.poolLocation', 'studentAttendances.student', 'schedule.scheduleRequests.proposedPoolLocation'])
             ->orderBy('training_date', 'desc')
@@ -104,11 +107,28 @@ class OperationalController extends Controller
 
         if ($date) {
             $query->whereDate('training_date', $date);
+        } else {
+            if ($month) {
+                $query->whereMonth('training_date', $month);
+            }
+            if ($year) {
+                $query->whereYear('training_date', $year);
+            }
         }
 
-        $reports = $query->get();
+        if ($coach_id) {
+            $query->where(function ($q) use ($coach_id) {
+                $q->where('coach_id', $coach_id)
+                  ->orWhereHas('schedule', function ($sq) use ($coach_id) {
+                      $sq->where('user_id', $coach_id);
+                  });
+            });
+        }
 
-        return view('admin.operations.recap', compact('reports', 'date'));
+        $reports = $query->paginate(20)->withQueryString();
+        $coaches = \App\Models\User::where('role', 'pelatih')->get();
+
+        return view('admin.operations.recap', compact('reports', 'date', 'month', 'year', 'coach_id', 'coaches'));
     }
 
     public function createManualRecap(Request $request)

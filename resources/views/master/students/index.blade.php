@@ -94,7 +94,45 @@
                         </a>
                     </div>
                 </div>
-                
+
+                {{-- Filter Bar --}}
+                <div class="mb-5">
+                    <form action="{{ route('master.students.index') }}" method="GET">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <input
+                                type="text"
+                                name="search"
+                                id="search"
+                                value="{{ request('search') }}"
+                                placeholder="Cari nama, sekolah, wali..."
+                                class="rounded-lg border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2 min-w-[220px]"
+                            >
+
+                            <select name="status" id="status" class="rounded-lg border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2 min-w-[150px]">
+                                <option value="">Semua Status</option>
+                                <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                            </select>
+
+                            <select name="gender" id="gender" class="rounded-lg border border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3 py-2 min-w-[150px]">
+                                <option value="">Semua Jenis Kelamin</option>
+                                <option value="Laki-laki" {{ request('gender') === 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                <option value="Perempuan" {{ request('gender') === 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                            </select>
+
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-sm transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-filter"></i> Filter
+                            </button>
+
+                            @if(request()->hasAny(['search', 'status', 'gender']))
+                                <a href="{{ route('master.students.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+
                 <div class="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                     <table class="w-full text-left border-collapse">
                         <thead>

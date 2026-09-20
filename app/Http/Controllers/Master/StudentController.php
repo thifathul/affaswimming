@@ -12,7 +12,7 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $baseQuery = Student::where(function($q) {
             $q->doesntHave('user')
@@ -27,7 +27,26 @@ class StudentController extends Controller
             $q->whereNull('user_id')->orWhere('status', 'nonaktif');
         })->count();
 
-        $students = $baseQuery->with(['user', 'swimClasses', 'schedules.coach'])->latest()->paginate(10)->withQueryString();
+        $query = clone $baseQuery;
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('school', 'like', "%{$search}%")
+                  ->orWhere('parent_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        $students = $query->with(['user', 'swimClasses', 'schedules.coach'])->latest()->paginate(10)->withQueryString();
         
         return view('master.students.index', compact('students', 'totalStudents', 'totalWithAccount', 'totalWithoutAccount'));
     }

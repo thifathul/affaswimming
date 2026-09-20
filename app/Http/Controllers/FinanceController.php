@@ -10,9 +10,36 @@ use Carbon\Carbon;
 
 class FinanceController extends Controller
 {
-    public function payments()
+    public function payments(Request $request)
     {
-        $transactions = Transaction::with(['student', 'poolLocation'])->latest()->get();
+        $query = Transaction::with(['student', 'poolLocation'])->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('student', function($sq) use ($search) {
+                    $sq->where('name', 'like', "%{$search}%");
+                })->orWhere('manual_student_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', (int) $request->month);
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', (int) $request->year);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $transactions = $query->paginate(20)->withQueryString();
         return view('finance.payments.index', compact('transactions'));
     }
 
@@ -253,6 +280,42 @@ class FinanceController extends Controller
             ->get();
 
         return view('finance.unpaid.index', compact('students'));
+    }
+
+    public function billing(Request $request)
+    {
+        $query = \App\Models\Student::where('status', 'aktif')->with(['user']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $students = $query->paginate(15)->withQueryString();
+
+        return view('finance.billing.index', compact('students'));
+    }
+
+    public function updateBilling(Request $request, Student $student)
+    {
+        $validated = $request->validate([
+            'add_meetings' => 'required|integer',
+            'package_active_until' => 'nullable|date',
+        ]);
+
+        $currentMeetings = $student->remaining_meetings ?? 0;
+        
+        $student->update([
+            'remaining_meetings' => $currentMeetings + $validated['add_meetings'],
+            'package_active_until' => $validated['package_active_until'],
+        ]);
+
+        return redirect()->back()->with('success', 'Data billing murid berhasil diperbarui secara manual.');
     }
 
     public function expenses(Request $request)

@@ -312,6 +312,10 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     // Unpaid Students
     Route::get('/finance/unpaid', [\App\Http\Controllers\FinanceController::class, 'unpaid'])->name('finance.unpaid.index');
 
+    // Billing
+    Route::get('/finance/billing', [\App\Http\Controllers\FinanceController::class, 'billing'])->name('finance.billing.index');
+    Route::put('/finance/billing/{student}', [\App\Http\Controllers\FinanceController::class, 'updateBilling'])->name('finance.billing.update');
+
     Route::get('/finance/incomes', [\App\Http\Controllers\FinanceController::class, 'incomes'])->name('finance.incomes.index');
     Route::post('/finance/incomes', [\App\Http\Controllers\FinanceController::class, 'storeIncome'])->name('finance.incomes.store');
     Route::put('/finance/incomes/{transaction}', [\App\Http\Controllers\FinanceController::class, 'updateIncome'])->name('finance.incomes.update');

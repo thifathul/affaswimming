@@ -7,10 +7,26 @@ use Illuminate\Http\Request;
 
 class PoolLocationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locations = PoolLocation::all();
-        return view('admin.pool_locations.index', compact('locations'));
+        $query = PoolLocation::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('package_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('location')) {
+            $query->where('name', $request->location);
+        }
+
+        $locations = $query->paginate(10)->withQueryString();
+        $allLocations = PoolLocation::select('name')->distinct()->orderBy('name')->pluck('name');
+
+        return view('admin.pool_locations.index', compact('locations', 'allLocations'));
     }
 
     public function create()
