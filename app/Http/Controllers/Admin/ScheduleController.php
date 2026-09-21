@@ -76,11 +76,25 @@ class ScheduleController extends Controller
             }
         }
 
+        $groupedSchedulesSorted = $groupedSchedules->sortBy('coach_name')->values();
+
+        $perPage = 15;
+        $page = request()->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $groupedSchedulesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $groupedSchedulesSorted->slice($offset, $perPage)->values(),
+            $groupedSchedulesSorted->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         $coaches = \App\Models\User::where('role', 'pelatih')->get();
         $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
         return view('admin.schedules.index', [
-            'groupedSchedules' => $groupedSchedules->sortBy('coach_name')->values(),
+            'groupedSchedules' => $groupedSchedulesPaginated,
             'coaches' => $coaches,
             'poolLocations' => $poolLocations,
         ]);

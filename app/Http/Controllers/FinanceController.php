@@ -277,7 +277,7 @@ class FinanceController extends Controller
             ->with(['user', 'attendances' => function($q) {
                 $q->latest()->take(1);
             }])
-            ->get();
+            ->paginate(15)->withQueryString();
 
         return view('finance.unpaid.index', compact('students'));
     }
@@ -393,7 +393,7 @@ class FinanceController extends Controller
                   });
             });
         }
-        $expenses = $expensesQueryBuilder->latest()->get();
+        $expenses = $expensesQueryBuilder->latest()->paginate(15)->withQueryString();
 
         return view('finance.expenses.index', compact('expenses', 'poolSummaries', 'poolLocations'));
     }
@@ -550,7 +550,7 @@ class FinanceController extends Controller
             $query->whereYear('updated_at', $year)->whereMonth('updated_at', $mon);
         }
 
-        $incomes = $query->latest()->get();
+        $incomes = $query->latest()->paginate(15)->withQueryString();
         $poolLocations = \App\Models\PoolLocation::all();
         return view('finance.incomes.index', compact('incomes', 'poolLocations'));
     }
@@ -613,11 +613,23 @@ class FinanceController extends Controller
         }
 
         $running_balance = $previousBalance;
-        $profit_data = $transactions->map(function($item) use (&$running_balance) {
+        $profit_data_all = $transactions->map(function($item) use (&$running_balance) {
             $running_balance += $item['income'] - $item['expense'];
             $item['balance'] = $running_balance;
             return $item;
         });
+
+        $perPage = 15;
+        $page = request()->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $profit_data = new \Illuminate\Pagination\LengthAwarePaginator(
+            $profit_data_all->slice($offset, $perPage)->values(),
+            $profit_data_all->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         // ---------------------------------------------------------
         // Calculate Spreadsheet Summary
@@ -699,7 +711,9 @@ class FinanceController extends Controller
             $data['saldo'] = $data['terkumpul'] - $data['terpakai'];
         }
 
-        return view('finance.profit.index', compact('profit_data', 'month', 'previousBalance', 'spreadsheet_summary'));
+        $total_saldo_akhir = $profit_data_all->isNotEmpty() ? $profit_data_all->last()['balance'] : $previousBalance;
+
+        return view('finance.profit.index', compact('profit_data', 'month', 'previousBalance', 'spreadsheet_summary', 'total_saldo_akhir'));
     }
 
     public function exportProfit(Request $request)

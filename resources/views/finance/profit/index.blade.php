@@ -31,8 +31,8 @@
 
                     <div class="text-right">
                         <p class="text-sm text-slate-500 font-medium">Total Saldo Akhir</p>
-                        <p class="text-2xl font-bold {{ (isset($profit_data) && $profit_data->last() ? $profit_data->last()['balance'] : $previousBalance) >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
-                            Rp {{ number_format(isset($profit_data) && $profit_data->last() ? $profit_data->last()['balance'] : $previousBalance, 0, ',', '.') }}
+                        <p class="text-2xl font-bold {{ $total_saldo_akhir >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                            Rp {{ number_format($total_saldo_akhir, 0, ',', '.') }}
                         </p>
                     </div>
                 </div>
@@ -164,6 +164,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mt-4">
+                        {{ $profit_data->links() }}
                     </div>
                 @endif
             </div>

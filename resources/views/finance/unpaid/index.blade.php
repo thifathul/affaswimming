@@ -70,6 +70,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-4">
+                    {{ $students->links() }}
+                </div>
 
             </div>
         </div>
