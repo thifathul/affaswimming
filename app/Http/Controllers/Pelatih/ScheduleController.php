@@ -32,10 +32,15 @@ class ScheduleController extends Controller
                   ->where('proposed_date', '>=', now()->subDays(7)->format('Y-m-d'));
         })
             ->with(['students', 'poolLocation', 'scheduleRequests' => function ($query) use ($userId) {
-                $query->where('type', 'inval')
-                      ->where('status', 'approved')
-                      ->where('substitute_coach_id', $userId)
+                $query->where('status', 'approved')
                       ->where('proposed_date', '>=', now()->subDays(7)->format('Y-m-d'))
+                      ->where(function ($q) use ($userId) {
+                          $q->where(function ($qInval) use ($userId) {
+                              $qInval->where('type', 'inval')
+                                     ->where('substitute_coach_id', $userId);
+                          })->orWhere('type', 'reschedule');
+                      })
+                      ->orderBy('proposed_date', 'desc')
                       ->with('proposedPoolLocation');
             }])
             ->orderByRaw("CASE day 
@@ -53,21 +58,25 @@ class ScheduleController extends Controller
         $dayOrder = ['Senin' => 1, 'Selasa' => 2, 'Rabu' => 3, 'Kamis' => 4, 'Jumat' => 5, 'Sabtu' => 6, 'Minggu' => 7];
 
         foreach ($schedules as $schedule) {
-            if ($schedule->user_id !== $userId && $schedule->scheduleRequests->isNotEmpty()) {
-                $invalReq = $schedule->scheduleRequests->first();
-                if ($invalReq && $invalReq->proposed_date) {
-                    $proposedDate = \Carbon\Carbon::parse($invalReq->proposed_date);
-                    $dayNameInIndonesian = [
-                        'Sunday' => 'Minggu',
-                        'Monday' => 'Senin',
-                        'Tuesday' => 'Selasa',
-                        'Wednesday' => 'Rabu',
-                        'Thursday' => 'Kamis',
-                        'Friday' => 'Jumat',
-                        'Saturday' => 'Sabtu',
-                    ][$proposedDate->format('l')] ?? $schedule->day;
-                    
-                    $schedule->day = $dayNameInIndonesian;
+            if ($schedule->scheduleRequests->isNotEmpty()) {
+                $activeReq = $schedule->scheduleRequests->first();
+                // Override day if it's an inval for substitute coach, or a reschedule for the original coach
+                if (($schedule->user_id !== $userId && $activeReq->type === 'inval') ||
+                    ($schedule->user_id === $userId && $activeReq->type === 'reschedule')) {
+                    if ($activeReq->proposed_date) {
+                        $proposedDate = \Carbon\Carbon::parse($activeReq->proposed_date);
+                        $dayNameInIndonesian = [
+                            'Sunday' => 'Minggu',
+                            'Monday' => 'Senin',
+                            'Tuesday' => 'Selasa',
+                            'Wednesday' => 'Rabu',
+                            'Thursday' => 'Kamis',
+                            'Friday' => 'Jumat',
+                            'Saturday' => 'Sabtu',
+                        ][$proposedDate->format('l')] ?? $schedule->day;
+                        
+                        $schedule->day = $dayNameInIndonesian;
+                    }
                 }
             }
         }

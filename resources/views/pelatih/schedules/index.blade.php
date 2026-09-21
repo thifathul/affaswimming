@@ -51,20 +51,28 @@
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold {{ $schedule->status === 'available' ? 'bg-emerald-200 text-emerald-800' : 'bg-blue-200 text-blue-800' }}">
                                     {{ ucfirst($schedule->status) }}
                                 </span>
-                                @if($schedule->user_id !== auth()->id() && $schedule->scheduleRequests->isNotEmpty())
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-purple-200 text-purple-800 ml-2">
-                                        Inval ({{ \Carbon\Carbon::parse($schedule->scheduleRequests->first()->proposed_date)->format('d/m/Y') }})
-                                    </span>
+                                @if($schedule->scheduleRequests->isNotEmpty())
+                                    @php $activeReq = $schedule->scheduleRequests->first(); @endphp
+                                    @if($schedule->user_id !== auth()->id() && $activeReq->type === 'inval')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-purple-200 text-purple-800 ml-2">
+                                            Inval ({{ \Carbon\Carbon::parse($activeReq->proposed_date)->format('d/m/Y') }})
+                                        </span>
+                                    @elseif($schedule->user_id === auth()->id() && $activeReq->type === 'reschedule')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-orange-200 text-orange-800 ml-2">
+                                            Reschedule ({{ \Carbon\Carbon::parse($activeReq->proposed_date)->format('d/m/Y') }})
+                                        </span>
+                                    @endif
                                 @endif
                             </div>
                             <div class="p-4">
                                 @php
-                                    $invalRequest = $schedule->user_id !== auth()->id() && $schedule->scheduleRequests->isNotEmpty() ? $schedule->scheduleRequests->first() : null;
+                                    $activeReq = $schedule->scheduleRequests->isNotEmpty() ? $schedule->scheduleRequests->first() : null;
+                                    $validRequest = ($activeReq && (($activeReq->type === 'inval' && $schedule->user_id !== auth()->id()) || ($activeReq->type === 'reschedule' && $schedule->user_id === auth()->id()))) ? $activeReq : null;
                                 @endphp
                                 <div class="flex items-center text-slate-700 mb-3 font-medium">
                                     <i class="fa-regular fa-clock mr-2 text-slate-400"></i>
-                                    @if($invalRequest && $invalRequest->proposed_start_time)
-                                        <span class="text-amber-600">{{ \Carbon\Carbon::parse($invalRequest->proposed_start_time)->format('H:i') }} - selesai</span>
+                                    @if($validRequest && $validRequest->proposed_start_time)
+                                        <span class="text-amber-600">{{ \Carbon\Carbon::parse($validRequest->proposed_start_time)->format('H:i') }} - selesai</span>
                                     @else
                                         {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                                     @endif
@@ -75,8 +83,8 @@
                                         <div class="flex items-start text-sm text-slate-600 mb-2">
                                             <i class="fa-solid fa-location-dot mt-1 mr-2 text-rose-500"></i>
                                             @php
-                                                $locationName = $invalRequest && $invalRequest->proposed_pool_location_id ? $invalRequest->proposedPoolLocation->name : ($schedule->poolLocation->name ?? 'Lokasi Dihapus');
-                                                $locationLabel = $invalRequest && $invalRequest->proposed_pool_location_id ? 'Pindah Lokasi Inval' : 'Lokasi';
+                                                $locationName = $validRequest && $validRequest->proposed_pool_location_id ? $validRequest->proposedPoolLocation->name : ($schedule->poolLocation->name ?? 'Lokasi Dihapus');
+                                                $locationLabel = $validRequest && $validRequest->proposed_pool_location_id ? ($validRequest->type === 'inval' ? 'Pindah Lokasi Inval' : 'Pindah Lokasi Reschedule') : 'Lokasi';
                                             @endphp
                                             <span><strong>{{ $locationLabel }}:</strong> {{ $locationName }}</span>
                                         </div>
@@ -199,20 +207,28 @@
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold {{ $schedule->status === 'available' ? 'bg-emerald-200 text-emerald-800' : 'bg-blue-200 text-blue-800' }}">
                                     {{ ucfirst($schedule->status) }}
                                 </span>
-                                @if($schedule->user_id !== auth()->id() && $schedule->scheduleRequests->isNotEmpty())
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-purple-200 text-purple-800 ml-2">
-                                        Inval ({{ \Carbon\Carbon::parse($schedule->scheduleRequests->first()->proposed_date)->format('d/m/Y') }})
-                                    </span>
+                                @if($schedule->scheduleRequests->isNotEmpty())
+                                    @php $activeReq = $schedule->scheduleRequests->first(); @endphp
+                                    @if($schedule->user_id !== auth()->id() && $activeReq->type === 'inval')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-purple-200 text-purple-800 ml-2">
+                                            Inval ({{ \Carbon\Carbon::parse($activeReq->proposed_date)->format('d/m/Y') }})
+                                        </span>
+                                    @elseif($schedule->user_id === auth()->id() && $activeReq->type === 'reschedule')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-orange-200 text-orange-800 ml-2">
+                                            Reschedule ({{ \Carbon\Carbon::parse($activeReq->proposed_date)->format('d/m/Y') }})
+                                        </span>
+                                    @endif
                                 @endif
                             </div>
                             <div class="p-4">
                                 @php
-                                    $invalRequest = $schedule->user_id !== auth()->id() && $schedule->scheduleRequests->isNotEmpty() ? $schedule->scheduleRequests->first() : null;
+                                    $activeReq = $schedule->scheduleRequests->isNotEmpty() ? $schedule->scheduleRequests->first() : null;
+                                    $validRequest = ($activeReq && (($activeReq->type === 'inval' && $schedule->user_id !== auth()->id()) || ($activeReq->type === 'reschedule' && $schedule->user_id === auth()->id()))) ? $activeReq : null;
                                 @endphp
                                 <div class="flex items-center text-slate-700 mb-3 font-medium">
                                     <i class="fa-regular fa-clock mr-2 text-slate-400"></i>
-                                    @if($invalRequest && $invalRequest->proposed_start_time)
-                                        <span class="text-amber-600">{{ \Carbon\Carbon::parse($invalRequest->proposed_start_time)->format('H:i') }} - selesai</span>
+                                    @if($validRequest && $validRequest->proposed_start_time)
+                                        <span class="text-amber-600">{{ \Carbon\Carbon::parse($validRequest->proposed_start_time)->format('H:i') }} - selesai</span>
                                     @else
                                         {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                                     @endif
@@ -223,8 +239,8 @@
                                         <div class="flex items-start text-sm text-slate-600 mb-2">
                                             <i class="fa-solid fa-location-dot mt-1 mr-2 text-rose-500"></i>
                                             @php
-                                                $locationName = $invalRequest && $invalRequest->proposed_pool_location_id ? $invalRequest->proposedPoolLocation->name : ($schedule->poolLocation->name ?? 'Lokasi Dihapus');
-                                                $locationLabel = $invalRequest && $invalRequest->proposed_pool_location_id ? 'Pindah Lokasi Inval' : 'Lokasi';
+                                                $locationName = $validRequest && $validRequest->proposed_pool_location_id ? $validRequest->proposedPoolLocation->name : ($schedule->poolLocation->name ?? 'Lokasi Dihapus');
+                                                $locationLabel = $validRequest && $validRequest->proposed_pool_location_id ? ($validRequest->type === 'inval' ? 'Pindah Lokasi Inval' : 'Pindah Lokasi Reschedule') : 'Lokasi';
                                             @endphp
                                             <span><strong>{{ $locationLabel }}:</strong> {{ $locationName }}</span>
                                         </div>
