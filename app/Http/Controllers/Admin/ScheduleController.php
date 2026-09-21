@@ -179,10 +179,24 @@ class ScheduleController extends Controller
             $locationSummary->put($poolName, $poolSummary);
         }
 
+        $sortedLocationSummary = $locationSummary->sortKeys();
+
+        $perPage = 6; // 6 lokasi per halaman
+        $page = request()->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $locationSummaryPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sortedLocationSummary->slice($offset, $perPage, true)->all(),
+            $sortedLocationSummary->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
         return view('admin.schedules.locations', [
-            'locationSummary' => $locationSummary->sortKeys(),
+            'locationSummary' => $locationSummaryPaginated,
             'poolLocations' => $poolLocations
         ]);
     }

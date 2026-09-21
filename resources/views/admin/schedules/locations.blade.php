@@ -100,6 +100,9 @@
                         </div>
                     @endforeach
                 </div>
+                <div class="mt-6">
+                    {{ $locationSummary->links() }}
+                </div>
             @else
                 <div class="bg-white rounded-2xl border border-slate-100 p-12 text-center shadow-sm">
                     <i class="fa-solid fa-calendar-xmark text-4xl text-slate-300 mb-4"></i>
