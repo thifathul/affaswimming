@@ -76,10 +76,10 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <p class="text-slate-700 text-sm whitespace-pre-line">{{ $eval->evaluation }}</p>
+                                        <p class="text-slate-700 text-sm whitespace-pre-line">{{ $eval->evaluation ?: '-' }}</p>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <p class="text-slate-700 text-sm whitespace-pre-line">{{ $eval->admin_note ?? '-' }}</p>
+                                        <p class="text-slate-700 text-sm whitespace-pre-line">{{ $eval->admin_note ?: '-' }}</p>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <button @click="openModal('{{ route('admin.report-cards.update-admin-note', [$student->id, $eval->id]) }}', `{{ addslashes(str_replace(["\r", "\n"], [' ', ' '], $eval->admin_note ?? '')) }}`)" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md text-xs font-semibold transition-colors">
