@@ -33,6 +33,7 @@ class ReportCardController extends Controller
     {
         $evaluations = StudentAttendance::with(['trainingReport.coach', 'trainingReport.schedule.poolLocation'])
             ->where('student_id', $student->id)
+            ->where('status', 'Hadir')
             ->join('training_reports', 'student_attendances.training_report_id', '=', 'training_reports.id')
             ->orderBy('training_reports.training_date', 'desc')
             ->orderBy('student_attendances.created_at', 'desc')
