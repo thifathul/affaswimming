@@ -152,9 +152,13 @@
                                                 @endif
                                             </td>
                                             <td class="py-3 px-4">
-                                                <a href="{{ asset('storage/' . $trx->proof_of_payment) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                    Lihat Foto
-                                                </a>
+                                                @if($trx->proof_of_payment)
+                                                    <a href="{{ asset('storage/' . $trx->proof_of_payment) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                        Lihat Foto
+                                                    </a>
+                                                @else
+                                                    <span class="text-xs text-slate-400">-</span>
+                                                @endif
                                             </td>
                                             <td class="py-3 px-4">
                                                 @if($trx->payment_method)
