@@ -90,7 +90,7 @@ class ScheduleController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        $coaches = \App\Models\User::where('role', 'pelatih')->get();
+        $coaches = \App\Models\User::where('role', 'pelatih')->orderBy('name', 'asc')->get();
         $poolLocations = \App\Models\PoolLocation::orderBy('name')->get()->unique('name');
 
         return view('admin.schedules.index', [
@@ -389,10 +389,6 @@ class ScheduleController extends Controller
 
     public function destroy(Schedule $schedule)
     {
-        if ($schedule->trainingReports()->count() > 0) {
-            return redirect()->back()->with('error', 'Tidak dapat menghapus sesi kelas ini karena sudah memiliki riwayat absen/latihan. Menghapus sesi ini akan menghilangkan data riwayat laporan latihan.');
-        }
-
         $schedule->students()->detach();
         $schedule->delete();
 
