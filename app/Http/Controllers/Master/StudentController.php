@@ -45,7 +45,11 @@ class StudentController extends Controller
             $query->where('gender', $request->gender);
         }
 
-        $students = $query->with(['user', 'swimClasses', 'schedules.coach'])->latest()->paginate(10)->withQueryString();
+        $students = $query->with(['user', 'swimClasses', 'schedules.coach'])
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->select('students.*')
+            ->orderByRaw('COALESCE(NULLIF(students.name, ""), users.name) ASC')
+            ->paginate(10)->withQueryString();
         
         return view('master.students.index', compact('students', 'totalStudents', 'totalWithAccount', 'totalWithoutAccount'));
     }

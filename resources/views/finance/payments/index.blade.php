@@ -108,6 +108,7 @@
                                 <thead>
                                     <tr class="bg-slate-50 border-y border-slate-100">
                                         <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Murid</th>
+                                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</th>
                                         <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Paket</th>
                                         <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Jumlah</th>
                                         <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Kredit</th>
@@ -122,7 +123,15 @@
                                         <tr class="hover:bg-slate-50/50 transition-colors">
                                             <td class="py-3 px-4">
                                                 <p class="text-sm font-bold text-slate-800">{{ $trx->student->name ?? 'Murid Dihapus' }}</p>
-                                                <p class="text-xs text-slate-500">{{ \Carbon\Carbon::parse($trx->practice_start_date)->format('d M Y') }}</p>
+                                                <p class="text-xs text-slate-500" title="Tanggal Mulai Latihan">Mulai: {{ \Carbon\Carbon::parse($trx->practice_start_date)->format('d M Y') }}</p>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div class="text-sm font-semibold text-slate-700">
+                                                    {{ \Carbon\Carbon::parse($trx->created_at)->format('d M Y') }}
+                                                </div>
+                                                <div class="text-xs text-slate-400">
+                                                    {{ \Carbon\Carbon::parse($trx->created_at)->format('H:i') }}
+                                                </div>
                                             </td>
                                             <td class="py-3 px-4">
                                                 <p class="text-sm text-slate-700">{{ $trx->poolLocation->name ?? '-' }}</p>

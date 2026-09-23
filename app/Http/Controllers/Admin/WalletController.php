@@ -13,7 +13,7 @@ class WalletController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::whereIn('role', ['pelatih', 'murid'])->with('wallet');
+        $query = User::whereIn('role', ['pelatih', 'murid'])->with('wallet')->orderBy('name', 'asc');
         
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {

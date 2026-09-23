@@ -267,32 +267,41 @@ class FinanceController extends Controller
         return redirect()->back()->with('success', 'Data pembayaran berhasil dihapus.');
     }
 
-    public function unpaid()
+    public function unpaid(Request $request)
     {
         // Hanya tampilkan murid yang punya transaksi/riwayat latihan (aktif) namun billing <= 0
-        $students = \App\Models\Student::where('remaining_meetings', '<=', 0)
+        $query = \App\Models\Student::where('remaining_meetings', '<=', 0)
             ->whereHas('transactions', function($q) {
                 $q->where('status', 'approved');
             })
             ->with(['user', 'attendances' => function($q) {
                 $q->latest()->take(1);
-            }])
-            ->paginate(15)->withQueryString();
+            }]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->paginate(15)->withQueryString();
 
         return view('finance.unpaid.index', compact('students'));
     }
 
     public function billing(Request $request)
     {
-        $query = \App\Models\Student::where('status', 'aktif')->with(['user']);
+        $query = \App\Models\Student::where('students.status', 'aktif')->with(['user'])
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->select('students.*')
+            ->orderByRaw('COALESCE(NULLIF(students.name, ""), users.name) ASC');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%");
-                  });
+                $q->where('students.name', 'like', "%{$search}%")
+                  ->orWhere('users.name', 'like', "%{$search}%");
             });
         }
 

@@ -324,6 +324,10 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     Route::get('/finance/profit', [\App\Http\Controllers\FinanceController::class, 'profit'])->name('finance.profit');
     Route::get('/finance/profit/export', [\App\Http\Controllers\FinanceController::class, 'exportProfit'])->name('finance.profit.export');
 
+    // Payroll
+    Route::get('/finance/payroll', [\App\Http\Controllers\PayrollController::class, 'index'])->name('finance.payroll.index');
+    Route::post('/finance/payroll/pay', [\App\Http\Controllers\PayrollController::class, 'paySalary'])->name('finance.payroll.pay');
+
     // Shared Schedules (Master & Admin)
     Route::get('/admin/schedules', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('admin.schedules.index');
     Route::get('/admin/schedules/locations', [\App\Http\Controllers\Admin\ScheduleController::class, 'locationSchedules'])->name('admin.schedules.locations');
@@ -368,11 +372,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     ]);
 
     
-    // Payroll
-    // Payroll
-    Route::get('/finance/payroll', [\App\Http\Controllers\PayrollController::class, 'index'])->name('finance.payroll.index');
-    Route::post('/finance/payroll/pay', [\App\Http\Controllers\PayrollController::class, 'paySalary'])->name('finance.payroll.pay');
-
     // E-Wallet
     Route::get('/wallets', [\App\Http\Controllers\Admin\WalletController::class, 'index'])->name('admin.wallets.index');
     Route::get('/wallets/{user}', [\App\Http\Controllers\Admin\WalletController::class, 'show'])->name('admin.wallets.show');

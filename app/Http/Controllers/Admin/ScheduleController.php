@@ -389,6 +389,10 @@ class ScheduleController extends Controller
 
     public function destroy(Schedule $schedule)
     {
+        if ($schedule->trainingReports()->count() > 0) {
+            return redirect()->back()->with('error', 'Tidak dapat menghapus sesi kelas ini karena sudah memiliki riwayat absen/latihan. Menghapus sesi ini akan menghilangkan data riwayat laporan latihan.');
+        }
+
         $schedule->students()->detach();
         $schedule->delete();
 

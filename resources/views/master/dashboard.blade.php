@@ -168,6 +168,15 @@
                                 <p class="text-xs text-slate-400 mt-1">Kelola paket, pertemuan, dan lokasi kolam.</p>
                             </div>
                         </a>
+                        <a href="{{ route('finance.payroll.index') }}" class="p-5 rounded-2xl border border-slate-150 bg-slate-50/50 hover:bg-blue-50/30 hover:border-blue-200 transition-all duration-200 group flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-money-check-dollar text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Perhitungan Gaji</h4>
+                                <p class="text-xs text-slate-400 mt-1">Gaji pelatih berdasarkan presensi.</p>
+                            </div>
+                        </a>
                         <a href="{{ route('finance.incomes.index') }}" class="p-5 rounded-2xl border border-slate-150 bg-slate-50/50 hover:bg-blue-50/30 hover:border-blue-200 transition-all duration-200 group flex items-start gap-4">
                             <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                                 <i class="fa-solid fa-arrow-trend-up text-lg"></i>

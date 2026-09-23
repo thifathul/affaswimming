@@ -12,15 +12,16 @@ class ReportCardController extends Controller
     public function index(Request $request)
     {
         // View all students
-        $query = Student::with(['user', 'swimClasses']);
+        $query = Student::with(['user', 'swimClasses'])
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->select('students.*')
+            ->orderBy('users.name', 'asc');
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhereHas('user', function ($u) use ($search) {
-                      $u->where('name', 'like', '%' . $search . '%');
-                  });
+                $q->where('students.name', 'like', '%' . $search . '%')
+                  ->orWhere('users.name', 'like', '%' . $search . '%');
             });
         }
 

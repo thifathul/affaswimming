@@ -9,12 +9,39 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100 p-6">
                 
+                <!-- Header Section -->
                 <div class="mb-6">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
                         Tagihan Kosong / Minus
                     </h3>
-                    <p class="text-sm text-slate-500 mt-1">Daftar murid di bawah ini adalah murid aktif yang kehabisan paket namun masih mengikuti latihan, atau sudah waktunya membeli paket baru.</p>
+                    <p class="text-sm text-slate-500 mt-1 max-w-3xl">Daftar murid di bawah ini adalah murid aktif yang kehabisan paket namun masih mengikuti latihan, atau sudah waktunya membeli paket baru.</p>
+                </div>
+
+                <!-- Toolbar Section -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <div class="text-sm font-medium text-slate-500">
+                        Total: <span class="text-slate-800 font-bold bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm ml-1">{{ $students->total() }}</span> Murid
+                    </div>
+                    
+                    <form method="GET" action="{{ route('finance.unpaid.index') }}" class="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                        <div class="relative w-full sm:w-64">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white shadow-sm" placeholder="Cari nama murid...">
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button type="submit" class="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-filter text-xs"></i> Filter
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('finance.unpaid.index') }}" class="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                                    <i class="fa-solid fa-rotate-right text-xs"></i> Reset
+                                </a>
+                            @endif
+                        </div>
+                    </form>
                 </div>
 
                 <div class="overflow-x-auto">
