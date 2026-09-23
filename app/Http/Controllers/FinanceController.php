@@ -46,7 +46,11 @@ class FinanceController extends Controller
     public function create()
     {
         $poolLocations = \App\Models\PoolLocation::all();
-        $students = Student::with('user')->get();
+        $students = Student::with('user')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->select('students.*')
+            ->orderByRaw('COALESCE(NULLIF(students.name, ""), users.name) ASC')
+            ->get();
         return view('finance.payments.create', compact('poolLocations', 'students'));
     }
 
@@ -84,7 +88,11 @@ class FinanceController extends Controller
     public function edit(Transaction $transaction)
     {
         $poolLocations = \App\Models\PoolLocation::all();
-        $students = Student::with('user')->get();
+        $students = Student::with('user')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->select('students.*')
+            ->orderByRaw('COALESCE(NULLIF(students.name, ""), users.name) ASC')
+            ->get();
         return view('finance.payments.edit', compact('transaction', 'poolLocations', 'students'));
     }
 
