@@ -73,9 +73,13 @@
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
                                                 Reschedule
                                             </span>
-                                        @else
+                                        @elseif($request->type === 'inval')
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
                                                 Inval
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                                                {{ ucfirst($request->type) }}
                                             </span>
                                         @endif
                                     </td>

@@ -12,7 +12,8 @@ class OperationalController extends Controller
 {
     public function approvals(Request $request)
     {
-        $query = ScheduleRequest::with(['schedule.coach', 'substituteCoach', 'proposedPoolLocation', 'schedule.poolLocation']);
+        $query = ScheduleRequest::with(['schedule.coach', 'substituteCoach', 'proposedPoolLocation', 'schedule.poolLocation'])
+            ->whereIn('type', ['inval', 'reschedule']);
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -126,17 +127,34 @@ class OperationalController extends Controller
         }
 
         $reports = $query->paginate(20)->withQueryString();
-        $coaches = \App\Models\User::where('role', 'pelatih')->get();
+        $coaches = \App\Models\User::where('role', 'pelatih')->orderBy('name', 'asc')->get();
 
         return view('admin.operations.recap', compact('reports', 'date', 'month', 'year', 'coach_id', 'coaches'));
     }
 
     public function createManualRecap(Request $request)
     {
-        $schedules = \App\Models\Schedule::with(['coach', 'poolLocation'])->orderBy('day')->orderBy('start_time')->get();
+        $schedules = \App\Models\Schedule::select('schedules.*')
+            ->join('users', 'schedules.user_id', '=', 'users.id')
+            ->with(['coach', 'poolLocation'])
+            ->orderBy('users.name', 'asc')
+            ->orderByRaw("CASE day 
+                WHEN 'Senin' THEN 1 
+                WHEN 'Selasa' THEN 2 
+                WHEN 'Rabu' THEN 3 
+                WHEN 'Kamis' THEN 4 
+                WHEN 'Jumat' THEN 5 
+                WHEN 'Sabtu' THEN 6 
+                WHEN 'Minggu' THEN 7 
+                ELSE 8 END")
+            ->orderBy('start_time', 'asc')
+            ->get();
+            
         $selectedSchedule = null;
         if ($request->has('schedule_id')) {
-            $selectedSchedule = \App\Models\Schedule::with('students.user')->find($request->schedule_id);
+            $selectedSchedule = \App\Models\Schedule::with(['students' => function($q) {
+                $q->orderBy('name', 'asc');
+            }, 'students.user'])->find($request->schedule_id);
         }
         return view('admin.operations.manual-recap', compact('schedules', 'selectedSchedule', 'request'));
     }
