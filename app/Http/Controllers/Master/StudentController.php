@@ -22,9 +22,9 @@ class StudentController extends Controller
         });
 
         $totalStudents = (clone $baseQuery)->count();
-        $totalWithAccount = (clone $baseQuery)->whereNotNull('user_id')->where('status', 'aktif')->count();
+        $totalWithAccount = (clone $baseQuery)->whereNotNull('students.user_id')->where('students.status', 'aktif')->count();
         $totalWithoutAccount = (clone $baseQuery)->where(function($q) {
-            $q->whereNull('user_id')->orWhere('status', 'nonaktif');
+            $q->whereNull('students.user_id')->orWhere('students.status', 'nonaktif');
         })->count();
 
         $query = clone $baseQuery;
@@ -32,17 +32,17 @@ class StudentController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('school', 'like', "%{$search}%");
+                $q->where('students.name', 'like', "%{$search}%")
+                  ->orWhere('students.school', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('students.status', $request->status);
         }
 
         if ($request->filled('gender')) {
-            $query->where('gender', $request->gender);
+            $query->where('students.gender', $request->gender);
         }
 
         $students = $query->with(['user', 'swimClasses', 'schedules.coach'])
