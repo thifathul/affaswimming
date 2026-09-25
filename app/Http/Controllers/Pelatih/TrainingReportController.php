@@ -146,6 +146,116 @@ class TrainingReportController extends Controller
         }
     }
 
+    public function edit(TrainingReport $trainingReport)
+    {
+        if ($trainingReport->coach_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit laporan ini.');
+        }
+
+        // Tidak boleh diedit jika sudah lewat 7 hari
+        if (now()->diffInDays($trainingReport->training_date) > 7 && \Carbon\Carbon::parse($trainingReport->training_date)->isPast()) {
+            return back()->with('error', 'Laporan tidak dapat diedit karena sudah lebih dari 7 hari dari tanggal latihan.');
+        }
+
+        $trainingReport->load(['schedule.students', 'schedule.poolLocation', 'studentAttendances.student']);
+        
+        $schedule = $trainingReport->schedule;
+
+        $invalRequest = ScheduleRequest::where('schedule_id', $schedule->id)
+            ->where('type', 'inval')
+            ->where('status', 'approved')
+            ->where('substitute_coach_id', auth()->id())
+            ->where('proposed_date', '>=', Carbon::now()->subDays(7)->format('Y-m-d'))
+            ->with('proposedPoolLocation')
+            ->first();
+
+        $isSubstitute = $invalRequest !== null;
+
+        return view('pelatih.reports.edit', compact('trainingReport', 'schedule', 'isSubstitute', 'invalRequest'));
+    }
+
+    public function update(Request $request, TrainingReport $trainingReport)
+    {
+        if ($trainingReport->coach_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit laporan ini.');
+        }
+
+        $validated = $request->validate([
+            'training_date' => 'required|date',
+            'coach_attendance' => 'required|in:Hadir,Tidak Hadir',
+            'report_note' => 'nullable|string',
+            'student_attendance' => 'array',
+            'student_attendance.*' => 'in:Hadir,Tidak Hadir',
+            'student_evaluations' => 'nullable|array',
+            'student_evaluations.*' => 'nullable|string',
+        ]);
+
+        $trainingDate = Carbon::parse($validated['training_date']);
+        
+        if (now()->diffInDays($trainingDate) > 7 && $trainingDate->isPast()) {
+            return back()->withErrors(['training_date' => 'Laporan tidak dapat diedit karena sudah lebih dari 7 hari dari tanggal latihan.']);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $trainingReport->update([
+                'training_date' => $validated['training_date'],
+                'coach_attendance' => $validated['coach_attendance'],
+                'report_note' => $validated['report_note'],
+            ]);
+
+            if (isset($validated['student_attendance'])) {
+                foreach ($validated['student_attendance'] as $studentId => $status) {
+                    
+                    if ($validated['coach_attendance'] === 'Tidak Hadir') {
+                        $status = 'Tidak Hadir';
+                    }
+
+                    $attendance = StudentAttendance::where('training_report_id', $trainingReport->id)
+                        ->where('student_id', $studentId)
+                        ->first();
+
+                    $oldStatus = $attendance ? $attendance->status : null;
+                    
+                    if ($attendance) {
+                        $attendance->update([
+                            'status' => $status,
+                            'evaluation' => $validated['student_evaluations'][$studentId] ?? null,
+                        ]);
+                    } else {
+                        StudentAttendance::create([
+                            'training_report_id' => $trainingReport->id,
+                            'student_id' => $studentId,
+                            'status' => $status,
+                            'evaluation' => $validated['student_evaluations'][$studentId] ?? null,
+                        ]);
+                    }
+
+                    // Re-calculate remaining_meetings logic if status changed
+                    $student = \App\Models\Student::find($studentId);
+                    if ($student && $oldStatus !== $status) {
+                        // JIKA sebelumnya Tidak Hadir/Kosong dan SEKARANG Hadir => Kurangi Kuota
+                        if ($status === 'Hadir' && ($oldStatus === 'Tidak Hadir' || $oldStatus === null)) {
+                            $student->decrement('remaining_meetings');
+                        } 
+                        // JIKA sebelumnya Hadir dan SEKARANG Tidak Hadir => Kembalikan Kuota
+                        elseif ($status === 'Tidak Hadir' && $oldStatus === 'Hadir') {
+                            $student->increment('remaining_meetings');
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('pelatih.reports.index')->with('success', 'Laporan berhasil diperbarui.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengupdate laporan: ' . $e->getMessage()])->withInput();
+        }
+    }
+
     public function requestForm(Schedule $schedule)
     {
         if ($schedule->user_id !== auth()->id()) {

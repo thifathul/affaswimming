@@ -26,6 +26,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Kehadiran Murid</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Penilaian Murid</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Catatan</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-200">
@@ -98,10 +99,19 @@
                                     <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="{{ $report->report_note }}">
                                         {{ $report->report_note ?: '-' }}
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-l border-slate-100">
+                                        @if(now()->diffInDays($report->training_date) <= 7)
+                                            <a href="{{ route('pelatih.reports.edit', $report->id) }}" class="text-amber-500 hover:text-amber-700 transition-colors px-2 py-1 bg-amber-50 rounded-lg" title="Edit Laporan">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </a>
+                                        @else
+                                            <span class="text-slate-400 text-xs px-2 py-1 bg-slate-50 rounded-lg" title="Terkunci (Lebih dari 7 hari)"><i class="fa-solid fa-lock"></i> Kunci</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center text-slate-500">
+                                    <td colspan="8" class="px-6 py-12 text-center text-slate-500">
                                         <i class="fa-regular fa-folder-open text-3xl mb-3 text-slate-300 block"></i>
                                         Anda belum pernah membuat laporan kehadiran.
                                     </td>

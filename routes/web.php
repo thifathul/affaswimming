@@ -399,6 +399,9 @@ Route::middleware(['auth', 'role:pelatih'])->group(function () {
     Route::get('/pelatih/schedules/{schedule}/report', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'create'])->name('pelatih.reports.create');
     Route::post('/pelatih/schedules/{schedule}/report', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'store'])->name('pelatih.reports.store');
     
+    Route::get('/pelatih/reports/{trainingReport}/edit', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'edit'])->name('pelatih.reports.edit');
+    Route::put('/pelatih/reports/{trainingReport}', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'update'])->name('pelatih.reports.update');
+    
     Route::get('/pelatih/schedules/{schedule}/request', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'requestForm'])->name('pelatih.requests.create');
     Route::get('/pelatih/schedules/{schedule}/request-absent', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'requestAbsentForm'])->name('pelatih.requests.createAbsent');
     Route::post('/pelatih/schedules/{schedule}/request', [\App\Http\Controllers\Pelatih\TrainingReportController::class, 'submitRequest'])->name('pelatih.requests.store');
