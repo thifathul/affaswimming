@@ -9,6 +9,7 @@ use App\Models\StudentAttendance;
 use App\Models\ScheduleRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class TrainingReportController extends Controller
@@ -96,37 +97,53 @@ class TrainingReportController extends Controller
             return back()->withErrors(['training_date' => 'Laporan presensi untuk jadwal dan tanggal ini sudah pernah dibuat.']);
         }
 
-        // Simpan Report
-        $report = TrainingReport::create([
-            'schedule_id' => $schedule->id,
-            'coach_id' => auth()->id(), // Mencatat pelatih aktual yang absen
-            'training_date' => $validated['training_date'],
-            'meeting_number' => 0, // Not used anymore, replaced by dynamic calculation per student
-            'coach_attendance' => $validated['coach_attendance'],
-            'report_note' => $validated['report_note'],
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Simpan Kehadiran Murid
-        if (isset($validated['student_attendance'])) {
-            foreach ($validated['student_attendance'] as $studentId => $status) {
-                StudentAttendance::create([
-                    'training_report_id' => $report->id,
-                    'student_id' => $studentId,
-                    'status' => $status,
-                    'evaluation' => $validated['student_evaluations'][$studentId] ?? null,
-                ]);
+            // Simpan Report
+            $report = TrainingReport::create([
+                'schedule_id' => $schedule->id,
+                'coach_id' => auth()->id(), // Mencatat pelatih aktual yang absen
+                'training_date' => $validated['training_date'],
+                'meeting_number' => 0, // Not used anymore, replaced by dynamic calculation per student
+                'coach_attendance' => $validated['coach_attendance'],
+                'report_note' => $validated['report_note'],
+            ]);
 
-                // Kurangi kuota pertemuan jika murid Hadir
-                if ($status === 'Hadir') {
-                    $student = \App\Models\Student::find($studentId);
-                    if ($student) {
-                        $student->decrement('remaining_meetings');
+            // Simpan Kehadiran Murid
+            if (isset($validated['student_attendance'])) {
+                foreach ($validated['student_attendance'] as $studentId => $status) {
+                    
+                    // Mencegah bug: Jika pelatih tidak hadir, paksa status murid jadi Tidak Hadir 
+                    // agar kuota (billing) murid tidak terpotong otomatis
+                    if ($validated['coach_attendance'] === 'Tidak Hadir') {
+                        $status = 'Tidak Hadir';
+                    }
+
+                    StudentAttendance::create([
+                        'training_report_id' => $report->id,
+                        'student_id' => $studentId,
+                        'status' => $status,
+                        'evaluation' => $validated['student_evaluations'][$studentId] ?? null,
+                    ]);
+
+                    // Kurangi kuota pertemuan jika murid Hadir
+                    if ($status === 'Hadir') {
+                        $student = \App\Models\Student::find($studentId);
+                        if ($student) {
+                            $student->decrement('remaining_meetings');
+                        }
                     }
                 }
             }
-        }
 
-        return redirect()->route('pelatih.schedules.index')->with('success', 'Laporan dan kehadiran berhasil disimpan.');
+            DB::commit();
+            return redirect()->route('pelatih.schedules.index')->with('success', 'Laporan dan kehadiran berhasil disimpan.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan laporan: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function requestForm(Schedule $schedule)

@@ -192,6 +192,13 @@ class OperationalController extends Controller
 
         if (isset($validated['student_attendance'])) {
             foreach ($validated['student_attendance'] as $studentId => $status) {
+                
+                // Mencegah bug: Jika pelatih tidak hadir, paksa status murid jadi Tidak Hadir 
+                // agar kuota (billing) murid tidak terpotong otomatis
+                if ($validated['coach_attendance'] === 'Tidak Hadir') {
+                    $status = 'Tidak Hadir';
+                }
+
                 \App\Models\StudentAttendance::create([
                     'training_report_id' => $report->id,
                     'student_id' => $studentId,

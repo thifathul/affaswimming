@@ -104,6 +104,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Pelatih & Lokasi</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Jam Jadwal Asli</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Kehadiran Coach</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Alasan (Jika Absen)</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Kehadiran Murid</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Catatan / Penilaian</th>
                                 <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 uppercase">Pertemuan Ke-</th>
@@ -113,107 +114,113 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-200">
                             @forelse($reports as $report)
-                                <tr class="hover:bg-slate-50 transition-colors">
+                                @php
+                                    $invalRequest = null;
+                                    if($report->coach_id && $report->coach_id !== $report->schedule->user_id) {
+                                        $invalRequest = $report->schedule->scheduleRequests->first(function($req) use ($report) {
+                                            return $req->type === 'inval' 
+                                                && $req->substitute_coach_id === $report->coach_id 
+                                                && \Carbon\Carbon::parse($req->proposed_date)->format('Y-m-d') === \Carbon\Carbon::parse($report->training_date)->format('Y-m-d');
+                                        });
+                                    }
+                                    $locationName = $invalRequest && $invalRequest->proposed_pool_location_id ? $invalRequest->proposedPoolLocation->name : ($report->schedule->poolLocation->name ?? 'Lokasi tidak diketahui');
+                                    $timeString = $invalRequest && $invalRequest->proposed_start_time ? \Carbon\Carbon::parse($invalRequest->proposed_start_time)->format('H:i') : \Carbon\Carbon::parse($report->schedule->start_time)->format('H:i');
+                                    
+                                    $rowspan = max(1, $report->studentAttendances->count());
+                                    $attendances = $report->studentAttendances;
+                                @endphp
+
+                                @for($i = 0; $i < $rowspan; $i++)
                                     @php
-                                        $invalRequest = null;
-                                        if($report->coach_id && $report->coach_id !== $report->schedule->user_id) {
-                                            $invalRequest = $report->schedule->scheduleRequests->first(function($req) use ($report) {
-                                                return $req->type === 'inval' 
-                                                    && $req->substitute_coach_id === $report->coach_id 
-                                                    && \Carbon\Carbon::parse($req->proposed_date)->format('Y-m-d') === \Carbon\Carbon::parse($report->training_date)->format('Y-m-d');
-                                            });
-                                        }
-                                        $locationName = $invalRequest && $invalRequest->proposed_pool_location_id ? $invalRequest->proposedPoolLocation->name : ($report->schedule->poolLocation->name ?? 'Lokasi tidak diketahui');
-                                        $timeString = $invalRequest && $invalRequest->proposed_start_time ? \Carbon\Carbon::parse($invalRequest->proposed_start_time)->format('H:i') : \Carbon\Carbon::parse($report->schedule->start_time)->format('H:i');
+                                        $attendance = $attendances->isEmpty() ? null : $attendances[$i];
                                     @endphp
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($report->coach_id && $report->coach_id !== $report->schedule->user_id)
-                                            <div class="font-medium text-slate-900 flex items-center gap-2">
-                                                {{ $report->coach->name ?? 'N/A' }}
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">Inval</span>
-                                            </div>
-                                            <div class="text-[10px] text-slate-500 mt-0.5">Menggantikan: {{ $report->schedule->coach->name ?? 'N/A' }}</div>
-                                        @else
-                                            <div class="font-medium text-slate-900">{{ $report->schedule->coach->name ?? 'N/A' }}</div>
+                                    <tr class="hover:bg-slate-50 transition-colors {{ $i === $rowspan - 1 ? 'border-b-2 border-slate-200' : '' }}">
+                                        @if($i === 0)
+                                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 align-top whitespace-nowrap border-r border-slate-100">
+                                                @if($report->coach_id && $report->coach_id !== $report->schedule->user_id)
+                                                    <div class="font-medium text-slate-900 flex items-center gap-2">
+                                                        {{ $report->coach->name ?? 'N/A' }}
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">Inval</span>
+                                                    </div>
+                                                    <div class="text-[10px] text-slate-500 mt-0.5">Menggantikan: {{ $report->schedule->coach->name ?? 'N/A' }}</div>
+                                                @else
+                                                    <div class="font-medium text-slate-900">{{ $report->schedule->coach->name ?? 'N/A' }}</div>
+                                                @endif
+                                                <div class="text-xs text-slate-500 mt-1">{{ $locationName }} @if($invalRequest && $invalRequest->proposed_pool_location_id) <span class="text-amber-600 font-medium">(Pindah Lokasi)</span> @endif</div>
+                                            </td>
+                                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 align-top whitespace-nowrap text-sm text-slate-700 border-r border-slate-100">
+                                                <div class="font-medium text-blue-600">{{ \Carbon\Carbon::parse($report->training_date)->format('d M Y') }}</div>
+                                                <div class="text-xs text-slate-500">{{ $report->schedule->day }}, {{ $timeString }}</div>
+                                            </td>
+                                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 align-top whitespace-nowrap border-r border-slate-100">
+                                                @if($report->coach_attendance === 'Hadir')
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Hadir</span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Tidak Hadir</span>
+                                                @endif
+                                            </td>
+                                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 align-top text-sm text-slate-600 border-r border-slate-100 max-w-[200px]" title="{{ $report->report_note }}">
+                                                @if($report->coach_attendance === 'Tidak Hadir')
+                                                    <span class="block">{{ $report->report_note ?: '-' }}</span>
+                                                @else
+                                                    <span class="text-slate-400">-</span>
+                                                @endif
+                                            </td>
                                         @endif
-                                        <div class="text-xs text-slate-500 mt-1">{{ $locationName }} @if($invalRequest && $invalRequest->proposed_pool_location_id) <span class="text-amber-600 font-medium">(Pindah Lokasi)</span> @endif</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                                        <div class="font-medium text-blue-600">{{ \Carbon\Carbon::parse($report->training_date)->format('d M Y') }}</div>
-                                        <div class="text-xs text-slate-500">{{ $report->schedule->day }}, {{ $timeString }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($report->coach_attendance === 'Hadir')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Hadir</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">Tidak Hadir</span>
-                                        @endif
-                                    </td>
-                                    <td class="p-0 align-top border-l border-slate-100 min-w-[250px]">
-                                        <div class="flex flex-col h-full min-h-full">
-                                            @foreach($report->studentAttendances as $attendance)
-                                                <div class="px-6 py-4 border-b border-slate-100 last:border-b-0 flex-1 whitespace-nowrap text-sm flex justify-between items-center text-slate-700">
-                                                    <span class="font-medium flex items-center gap-2">
+
+                                        @if($attendance)
+                                            <td class="px-6 py-4 align-top text-sm text-slate-700 border-r border-slate-100 {{ $i !== $rowspan - 1 ? 'border-b border-slate-100' : '' }}">
+                                                <div class="flex items-center justify-between gap-4">
+                                                    <span class="font-medium">
                                                         {{ $attendance->student->name ?? 'Murid dihapus' }}
                                                     </span>
                                                     @if($attendance->status === 'Hadir')
-                                                        <span class="ml-4 inline-flex items-center justify-center px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 min-w-max">
+                                                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 min-w-max">
                                                             Hadir
                                                         </span>
                                                     @else
-                                                        <span class="ml-4 inline-flex items-center justify-center px-2.5 py-1 rounded text-[10px] font-bold bg-red-600 text-white min-w-max">
+                                                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded text-[10px] font-bold bg-red-600 text-white min-w-max">
                                                             Tidak Hadir
                                                         </span>
                                                     @endif
                                                 </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td class="p-0 align-top border-l border-slate-100">
-                                        <div class="flex flex-col h-full min-h-full">
-                                            @foreach($report->studentAttendances as $attendance)
-                                                <div class="px-6 py-4 border-b border-slate-100 last:border-b-0 flex-1 text-sm text-slate-600 flex items-center max-w-[200px] {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50' : '' }}" title="{{ $attendance->evaluation ?: '-' }}">
-                                                    <span class="truncate">{{ $attendance->evaluation ?: '-' }}</span>
+                                            </td>
+                                            <td class="px-6 py-4 align-top text-sm text-slate-600 border-r border-slate-100 whitespace-normal min-w-[250px] max-w-[300px] {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50' : '' }} {{ $i !== $rowspan - 1 ? 'border-b border-slate-100' : '' }}">
+                                                <div class="leading-relaxed">{{ $attendance->evaluation ?: '-' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 align-top text-center text-sm font-bold text-slate-700 border-r border-slate-100 {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50' : '' }} {{ $i !== $rowspan - 1 ? 'border-b border-slate-100' : '' }}">
+                                                {{ $attendance->meeting_number > 0 ? $attendance->meeting_number : '-' }}
+                                            </td>
+                                            <td class="px-6 py-4 align-top text-center text-sm font-bold border-r border-slate-100 {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50 text-slate-400' : ($attendance->student->remaining_meetings <= 0 ? 'text-red-600 bg-red-50/50' : 'text-blue-600') }} {{ $i !== $rowspan - 1 ? 'border-b border-slate-100' : '' }}">
+                                                {{ $attendance->student->remaining_meetings ?? '-' }}
+                                            </td>
+                                        @else
+                                            <td colspan="4" class="px-6 py-4 text-center text-slate-400 text-sm italic border-r border-slate-100">
+                                                Tidak ada data murid
+                                            </td>
+                                        @endif
+
+                                        @if($i === 0)
+                                            <td rowspan="{{ $rowspan }}" class="px-6 py-4 align-top whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex items-center justify-end gap-3">
+                                                    <a href="{{ route('admin.operations.showRecap', $report->id) }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Lihat Detail">
+                                                        <i class="fa-regular fa-eye"></i>
+                                                    </a>
+                                                    <form action="{{ route('admin.operations.destroyRecap', $report->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Yakin ingin menghapus laporan kehadiran ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-500 hover:text-red-700 transition-colors text-base bg-transparent border-none p-0 cursor-pointer" title="Hapus Laporan">
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td class="p-0 align-top border-l border-slate-100">
-                                        <div class="flex flex-col h-full min-h-full">
-                                            @foreach($report->studentAttendances as $attendance)
-                                                <div class="px-6 py-4 border-b border-slate-100 last:border-b-0 flex-1 text-center text-sm font-bold text-slate-700 flex items-center justify-center {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50' : '' }}">
-                                                    {{ $attendance->meeting_number > 0 ? $attendance->meeting_number : '-' }}
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td class="p-0 align-top border-l border-slate-100">
-                                        <div class="flex flex-col h-full min-h-full">
-                                            @foreach($report->studentAttendances as $attendance)
-                                                <div class="px-6 py-4 border-b border-slate-100 last:border-b-0 flex-1 text-center text-sm font-bold flex items-center justify-center {{ $attendance->status === 'Tidak Hadir' ? 'bg-rose-50/50 text-slate-400' : ($attendance->student->remaining_meetings <= 0 ? 'text-red-600 bg-red-50/50' : 'text-blue-600') }}">
-                                                    {{ $attendance->student->remaining_meetings ?? '-' }}
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-l border-slate-100">
-                                        <div class="flex items-center justify-end gap-3">
-                                            <a href="{{ route('admin.operations.showRecap', $report->id) }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Lihat Detail">
-                                                <i class="fa-regular fa-eye"></i>
-                                            </a>
-                                            <form action="{{ route('admin.operations.destroyRecap', $report->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Yakin ingin menghapus laporan kehadiran ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-700 transition-colors text-base bg-transparent border-none p-0 cursor-pointer" title="Hapus Laporan">
-                                                    <i class="fa-regular fa-trash-can"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endfor
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center text-slate-500">
+                                    <td colspan="9" class="px-6 py-12 text-center text-slate-500">
                                         <i class="fa-regular fa-folder-open text-3xl mb-3 text-slate-300 block"></i>
                                         Belum ada laporan latihan{{ $date ? ' untuk tanggal ini' : '' }}.
                                     </td>
