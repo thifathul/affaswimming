@@ -206,6 +206,9 @@
                                                     <a href="{{ route('admin.operations.showRecap', $report->id) }}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Lihat Detail">
                                                         <i class="fa-regular fa-eye"></i>
                                                     </a>
+                                                    <a href="{{ route('admin.operations.editRecap', $report->id) }}" class="text-amber-500 hover:text-amber-700 transition-colors" title="Edit Laporan">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </a>
                                                     <form action="{{ route('admin.operations.destroyRecap', $report->id) }}" method="POST" class="inline m-0" onsubmit="return confirm('Yakin ingin menghapus laporan kehadiran ini?');">
                                                         @csrf
                                                         @method('DELETE')

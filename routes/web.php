@@ -278,6 +278,8 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     
     Route::get('/operations/recap', [\App\Http\Controllers\Admin\OperationalController::class, 'dailyRecap'])->name('admin.operations.recap');
     Route::get('/operations/recap/{trainingReport}', [\App\Http\Controllers\Admin\OperationalController::class, 'showRecap'])->name('admin.operations.showRecap');
+    Route::get('/operations/recap/{trainingReport}/edit', [\App\Http\Controllers\Admin\OperationalController::class, 'editRecap'])->name('admin.operations.editRecap');
+    Route::put('/operations/recap/{trainingReport}', [\App\Http\Controllers\Admin\OperationalController::class, 'updateRecap'])->name('admin.operations.updateRecap');
     Route::delete('/operations/recap/{trainingReport}', [\App\Http\Controllers\Admin\OperationalController::class, 'destroyRecap'])->name('admin.operations.destroyRecap');
     // Shared Finance Operations (Master & Admin)
     Route::get('/finance/payments', [\App\Http\Controllers\FinanceController::class, 'payments'])->name('finance.payments.index');
