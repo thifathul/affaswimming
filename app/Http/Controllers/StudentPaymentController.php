@@ -20,7 +20,7 @@ class StudentPaymentController extends Controller
 
     public function create()
     {
-        $poolLocations = PoolLocation::all();
+        $poolLocations = PoolLocation::orderBy('name')->orderBy('package_name')->get();
         return view('student.payments.create', compact('poolLocations'));
     }
 

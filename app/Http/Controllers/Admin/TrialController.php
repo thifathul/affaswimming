@@ -35,7 +35,7 @@ class TrialController extends Controller
     public function create()
     {
         $coaches = User::where('role', 'pelatih')->where('status', 'approved')->get();
-        $poolLocations = PoolLocation::all()->unique('name');
+        $poolLocations = PoolLocation::orderBy('name')->orderBy('package_name')->get();
         return view('admin.trials.create', compact('coaches', 'poolLocations'));
     }
 
@@ -106,7 +106,7 @@ class TrialController extends Controller
     public function edit(Trial $trial)
     {
         $coaches = User::where('role', 'pelatih')->where('status', 'approved')->get();
-        $poolLocations = PoolLocation::all()->unique('name');
+        $poolLocations = PoolLocation::orderBy('name')->orderBy('package_name')->get();
         return view('admin.trials.edit', compact('trial', 'coaches', 'poolLocations'));
     }
 

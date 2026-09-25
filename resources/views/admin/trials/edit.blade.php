@@ -68,7 +68,7 @@
                             <label for="pool_location_id" class="block text-sm font-semibold text-slate-700 mb-1">Lokasi Kolam <span class="text-red-500">*</span></label>
                             <select name="pool_location_id" id="pool_location_id" required class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500">
                                 @foreach($poolLocations as $pool)
-                                    <option value="{{ $pool->id }}" {{ old('pool_location_id', $trial->pool_location_id) == $pool->id ? 'selected' : '' }}>{{ $pool->name }}</option>
+                                    <option value="{{ $pool->id }}" {{ old('pool_location_id', $trial->pool_location_id) == $pool->id ? 'selected' : '' }}>{{ $pool->name }} ({{ $pool->package_name ?? 'Tanpa Paket' }})</option>
                                 @endforeach
                             </select>
                         </div>

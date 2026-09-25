@@ -45,7 +45,7 @@ class FinanceController extends Controller
 
     public function create()
     {
-        $poolLocations = \App\Models\PoolLocation::all();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
         $students = Student::with('user')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->select('students.*')
@@ -87,7 +87,7 @@ class FinanceController extends Controller
 
     public function edit(Transaction $transaction)
     {
-        $poolLocations = \App\Models\PoolLocation::all();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
         $students = Student::with('user')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->select('students.*')
@@ -568,7 +568,7 @@ class FinanceController extends Controller
         }
 
         $incomes = $query->latest()->paginate(15)->withQueryString();
-        $poolLocations = \App\Models\PoolLocation::all();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
         return view('finance.incomes.index', compact('incomes', 'poolLocations'));
     }
 

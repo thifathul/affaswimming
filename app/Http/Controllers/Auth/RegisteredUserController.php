@@ -20,9 +20,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $poolLocations = \App\Models\PoolLocation::all()->unique(function ($item) {
-            return $item->name . '-' . $item->meeting_count;
-        });
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
         return view('auth.register', compact('poolLocations'));
     }
 

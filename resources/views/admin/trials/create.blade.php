@@ -69,7 +69,7 @@
                             <select name="pool_location_id" id="pool_location_id" required class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500">
                                 <option value="" disabled {{ old('pool_location_id') ? '' : 'selected' }}>Pilih Lokasi Kolam</option>
                                 @foreach($poolLocations as $pool)
-                                    <option value="{{ $pool->id }}" {{ old('pool_location_id') == $pool->id ? 'selected' : '' }}>{{ $pool->name }}</option>
+                                    <option value="{{ $pool->id }}" {{ old('pool_location_id') == $pool->id ? 'selected' : '' }}>{{ $pool->name }} ({{ $pool->package_name ?? 'Tanpa Paket' }})</option>
                                 @endforeach
                             </select>
                         </div>

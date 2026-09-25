@@ -216,7 +216,7 @@
                                         <select id="create_pool_location_id" name="pool_location_id" required class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             <option value="">-- Pilih Lokasi Kolam --</option>
                                             @foreach($poolLocations as $location)
-                                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                <option value="{{ $location->id }}">{{ $location->name }} ({{ $location->package_name ?? 'Tanpa Paket' }})</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -293,7 +293,7 @@
                                         <select id="pool_location_id" name="pool_location_id" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                             <option value="">-- Pilih Lokasi Kolam --</option>
                                             @foreach($poolLocations as $location)
-                                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                <option value="{{ $location->id }}">{{ $location->name }} ({{ $location->package_name ?? 'Tanpa Paket' }})</option>
                                             @endforeach
                                         </select>
                                     </div>

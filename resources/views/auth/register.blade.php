@@ -128,7 +128,7 @@
                                 <option value="" disabled selected>-- Pilih Lokasi --</option>
                                 @foreach($poolLocations as $pool)
                                     <option value="{{ $pool->id }}" data-price="{{ $pool->price }}" {{ old('pool_location_id') == $pool->id ? 'selected' : '' }}>
-                                        {{ $pool->name }} - {{ $pool->meeting_count }}x Pertemuan
+                                        {{ $pool->name }} ({{ $pool->package_name ?? 'Tanpa Paket' }}) - {{ $pool->meeting_count }}x Pertemuan
                                     </option>
                                 @endforeach
                             </select>

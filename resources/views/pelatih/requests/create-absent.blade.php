@@ -77,7 +77,7 @@
                                 <select name="proposed_pool_location_id" id="proposed_pool_location_id" class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                     <option value="">-- Lokasi Tetap --</option>
                                     @foreach($poolLocations as $pool)
-                                        <option value="{{ $pool->id }}">{{ $pool->name }}</option>
+                                        <option value="{{ $pool->id }}">{{ $pool->name }} ({{ $pool->package_name ?? 'Tanpa Paket' }})</option>
                                     @endforeach
                                 </select>
                                 <p class="mt-1 text-xs text-slate-500">Kosongkan jika latihan inval tetap di kolam yang sama.</p>

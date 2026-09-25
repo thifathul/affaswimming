@@ -264,7 +264,7 @@ class TrainingReportController extends Controller
         
         // Ambil data pelatih lain untuk opsi inval
         $coaches = User::where('role', 'pelatih')->where('id', '!=', auth()->id())->get();
-        $poolLocations = \App\Models\PoolLocation::all();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
 
         return view('pelatih.requests.create', compact('schedule', 'coaches', 'poolLocations'));
     }
@@ -296,7 +296,7 @@ class TrainingReportController extends Controller
 
         // Ambil data pelatih lain untuk opsi inval
         $coaches = User::where('role', 'pelatih')->where('id', '!=', auth()->id())->get();
-        $poolLocations = \App\Models\PoolLocation::all();
+        $poolLocations = \App\Models\PoolLocation::orderBy('name')->orderBy('package_name')->get();
 
         return view('pelatih.requests.create-absent', compact('schedule', 'coaches', 'poolLocations', 'absentStudents'));
     }

@@ -215,7 +215,7 @@ class ScheduleController extends Controller
             ->get();
             
         $students = Student::where('status', 'aktif')->orderBy('name', 'asc')->get();
-        $poolLocations = PoolLocation::orderBy('name')->get()->unique('name');
+        $poolLocations = PoolLocation::orderBy('name')->orderBy('package_name')->get();
         
         return view('admin.schedules.show', compact('coach', 'day', 'availabilities', 'schedules', 'students', 'poolLocations'));
     }
