@@ -29,11 +29,11 @@ class ScheduleController extends Controller
             $query->where('type', 'inval')
                   ->where('status', 'approved')
                   ->where('substitute_coach_id', $userId)
-                  ->where('proposed_date', '>=', now()->subDays(7)->format('Y-m-d'));
+                  ->where('proposed_date', '>=', now()->format('Y-m-d'));
         })
             ->with(['students', 'poolLocation', 'scheduleRequests' => function ($query) use ($userId) {
                 $query->where('status', 'approved')
-                      ->where('proposed_date', '>=', now()->subDays(7)->format('Y-m-d'))
+                      ->where('proposed_date', '>=', now()->format('Y-m-d'))
                       ->where(function ($q) use ($userId) {
                           $q->where(function ($qInval) use ($userId) {
                               $qInval->where('type', 'inval')
