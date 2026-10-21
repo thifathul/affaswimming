@@ -14,8 +14,87 @@
         </div>
     </x-slot>
 
-    <div class="py-12 bg-slate-50/50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-10 bg-slate-50/50 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <!-- High Urgency Unpaid Warning Banner (Wajib Dibaca) -->
+            @if($student && $student->remaining_meetings <= 0)
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-50 via-rose-50 to-amber-50 border-2 border-red-500 p-6 sm:p-7 shadow-lg shadow-red-500/10" style="background-color: #fef2f2; border-color: #ef4444; border-left: 8px solid #dc2626;">
+                    <!-- Background watermark icon -->
+                    <div class="absolute -right-6 -bottom-6 text-red-500/10 text-9xl pointer-events-none select-none">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+
+                    <div class="relative z-10">
+                        <!-- Top Header: Badges & Remaining Meetings -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-red-200">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase text-white shadow-sm" style="background-color: #dc2626;">
+                                    <i class="fa-solid fa-triangle-exclamation animate-pulse"></i> PERINGATAN PENTING
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold text-white uppercase tracking-wider" style="background-color: #d97706;">
+                                    WAJIB DIBACA
+                                </span>
+                            </div>
+                            <div class="text-xs font-bold px-3 py-1 rounded-lg border" style="background-color: #fee2e2; border-color: #fca5a5; color: #991b1b;">
+                                Sisa Pertemuan: <span class="font-extrabold text-sm" style="color: #7f1d1d;">{{ $student->remaining_meetings }} Sesi (Habis)</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div class="mt-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                            <div class="flex-1 space-y-3">
+                                <div>
+                                    <h3 class="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2" style="color: #7f1d1d;">
+                                        Paket Latihan Renang Anda Telah Habis!
+                                    </h3>
+                                    <p class="text-sm font-medium mt-1 leading-relaxed" style="color: #374151;">
+                                        Masa kuota paket latihan renang Anda telah habis (0 sesi). Harap segera perhatikan poin pemberitahuan di bawah ini:
+                                    </p>
+                                </div>
+
+                                <!-- Key Points / Consequences Card Grid -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                                    <div class="rounded-xl p-3 flex items-start gap-3 shadow-xs border" style="background-color: rgba(255, 255, 255, 0.9); border-color: #fecaca;">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold" style="background-color: #fee2e2; color: #b91c1c;">
+                                            <i class="fa-solid fa-user-slash"></i>
+                                        </div>
+                                        <div class="text-xs" style="color: #4b5563;">
+                                            <strong class="block font-bold mb-0.5" style="color: #991b1b;">Risiko Penonaktifan Akun</strong>
+                                            Akun Anda berstatus unpaid dan akan dinonaktifkan oleh admin jika tidak segera diperpanjang.
+                                        </div>
+                                    </div>
+
+                                    <div class="rounded-xl p-3 flex items-start gap-3 shadow-xs border" style="background-color: rgba(255, 255, 255, 0.9); border-color: #fecaca;">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold" style="background-color: #fee2e2; color: #b91c1c;">
+                                            <i class="fa-solid fa-calendar-xmark"></i>
+                                        </div>
+                                        <div class="text-xs" style="color: #4b5563;">
+                                            <strong class="block font-bold mb-0.5" style="color: #991b1b;">Pencabutan Jadwal & Pelatih</strong>
+                                            Slot jadwal dan kuota pelatih Anda akan ditarik dan dialihkan kepada murid lain yang aktif.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action CTA Buttons -->
+                            <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col gap-2.5 flex-shrink-0">
+                                <a href="{{ route('student.payments.create') }}" class="px-6 py-3.5 text-white font-black text-sm rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-center" style="background-color: #dc2626;">
+                                    <i class="fa-solid fa-wallet text-base"></i>
+                                    <span>Perpanjang Paket Sekarang</span>
+                                    <i class="fa-solid fa-arrow-right text-xs ml-1"></i>
+                                </a>
+
+                                <a href="https://wa.me/6282128199210?text={{ rawurlencode('Halo Admin AFFA Swimming, saya ingin konfirmasi perpanjangan paket renang atas nama ' . (Auth::user()->name ?? 'Murid')) }}" target="_blank" class="px-5 py-2.5 font-bold text-xs rounded-xl border transition-colors flex items-center justify-center gap-2 text-center shadow-xs" style="background-color: #ffffff; border-color: #fca5a5; color: #374151;">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                                    <span>Konfirmasi ke Admin WA</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl p-8 border border-slate-100 relative">
                 <div class="absolute top-0 right-0 p-8 opacity-5 text-amber-600 hidden md:block">
                     <i class="fa-solid fa-graduation-cap text-9xl"></i>

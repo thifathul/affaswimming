@@ -66,7 +66,7 @@
                                 @php
                                     $selectedCoachName = $coaches->firstWhere('id', $selectedCoachId)?->name;
                                 @endphp
-                                <button onclick="openPayModal('{{ $selectedCoachName }}', {{ $totalSalary }}, '{{ $startDate }}', '{{ $endDate }}')" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm flex items-center gap-2">
+                                <button onclick="openPayModal('{{ $selectedCoachName }}', {{ $totalSalary }}, '{{ $startDate }}', '{{ $endDate }}', {{ $totalMeetings }}, {{ $totalStudents }})" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm flex items-center gap-2">
                                     <i class="fa-solid fa-money-bill-wave"></i> Bayar Gaji
                                 </button>
                             @endif
@@ -86,18 +86,26 @@
                                 <tr class="bg-slate-50 border-y border-slate-100">
                                     <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Lokasi Kolam</th>
                                     <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Pertemuan</th>
-                                    <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Fee per Pertemuan (Rp)</th>
+                                    <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Murid Hadir</th>
+                                    <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Fee per Anak (Rp)</th>
                                     <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Subtotal (Rp)</th>
+                                    <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Rincian Sesi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
-                                @foreach($payrollData as $data)
+                                @foreach($payrollData as $index => $data)
                                     <tr class="hover:bg-slate-50/50 transition-colors">
                                         <td class="py-4 px-4 text-sm font-bold text-slate-700">
                                             {{ $data['pool_name'] }}
                                         </td>
                                         <td class="py-4 px-4 text-sm text-center">
-                                            <span class="px-2 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg text-xs">{{ $data['meetings_count'] }}x</span>
+                                            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg text-xs">{{ $data['meetings_count'] }} Sesi</span>
+                                            @if(!empty($data['trial_count']) && $data['trial_count'] > 0)
+                                                <span class="text-[10px] text-amber-600 font-semibold block mt-1">({{ $data['trial_count'] }} Trial)</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-4 text-sm text-center">
+                                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded-lg text-xs">{{ $data['students_count'] }} Anak</span>
                                         </td>
                                         <td class="py-4 px-4 text-sm text-right text-slate-600">
                                             {{ number_format($data['coach_fee'], 0, ',', '.') }}
@@ -105,15 +113,57 @@
                                         <td class="py-4 px-4 text-sm font-bold text-slate-800 text-right">
                                             {{ number_format($data['salary'], 0, ',', '.') }}
                                         </td>
+                                        <td class="py-4 px-4 text-sm text-center">
+                                            <button type="button" onclick="toggleDetails('details-{{ $index }}')" class="text-xs text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center gap-1 focus:outline-none">
+                                                <span>Detail</span>
+                                                <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200" id="icon-details-{{ $index }}"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr id="details-{{ $index }}" class="hidden bg-slate-50/80 border-b border-slate-100">
+                                        <td colspan="6" class="px-6 py-4">
+                                            <div class="text-xs font-bold text-slate-500 uppercase mb-2">Rincian Sesi & Murid Hadir:</div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                @forelse($data['sessions'] as $session)
+                                                    <div class="p-3 bg-white rounded-lg border border-slate-200/60 shadow-sm flex justify-between items-center">
+                                                        <div>
+                                                            <div class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                                                                <span>{{ $session['date'] }}</span>
+                                                                <span class="text-slate-400 font-normal">({{ $session['time'] }})</span>
+                                                                @if(isset($session['type']) && $session['type'] === 'trial')
+                                                                    <span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">TRIAL</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="text-[11px] text-slate-500 mt-1">
+                                                                Murid Hadir: 
+                                                                @if(count($session['students']) > 0)
+                                                                    <span class="text-slate-800 font-medium">{{ implode(', ', $session['students']) }}</span>
+                                                                @else
+                                                                    <span class="text-rose-500 italic">0 murid hadir (Rp 0)</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <span class="px-2 py-0.5 bg-blue-50 text-blue-700 font-bold rounded text-xs">{{ $session['students_count'] }} anak</span>
+                                                            <div class="font-bold text-emerald-600 text-xs mt-1">Rp {{ number_format($session['subtotal'], 0, ',', '.') }}</div>
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <p class="text-slate-400 italic text-xs">Tidak ada data sesi.</p>
+                                                @endforelse
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
                                 <tr class="bg-slate-50 border-t-2 border-slate-200">
                                     <td class="py-4 px-4 text-sm font-bold text-slate-800 uppercase text-right">Total Keseluruhan</td>
-                                    <td class="py-4 px-4 text-sm font-bold text-blue-700 text-center">{{ $totalMeetings }}x</td>
+                                    <td class="py-4 px-4 text-sm font-bold text-blue-700 text-center">{{ $totalMeetings }} Sesi</td>
+                                    <td class="py-4 px-4 text-sm font-bold text-emerald-700 text-center">{{ $totalStudents }} Anak</td>
                                     <td class="py-4 px-4 text-sm font-bold text-slate-800 text-right">-</td>
                                     <td class="py-4 px-4 text-base font-bold text-emerald-700 text-right">Rp {{ number_format($totalSalary, 0, ',', '.') }}</td>
+                                    <td></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -149,6 +199,7 @@
                                 <div class="mt-2 text-sm text-slate-500 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <p><strong>Pelatih:</strong> <span id="modalCoachName"></span></p>
                                     <p><strong>Periode:</strong> <span id="modalPeriod"></span></p>
+                                    <p><strong>Total Sesi & Kehadiran:</strong> <span id="modalTotalMeetings"></span> Sesi (<span id="modalTotalStudents"></span> Anak Hadir)</p>
                                     <p><strong>Total Gaji Pokok:</strong> Rp <span id="modalTotalSalary"></span></p>
                                     @if(isset($coachDebt) && $coachDebt > 0)
                                         <div class="mt-2 pt-2 border-t border-slate-200">
@@ -204,9 +255,22 @@
     </div>
     
     <script>
-        function openPayModal(coachName, totalSalary, startDate, endDate) {
+        function toggleDetails(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            if (el) {
+                el.classList.toggle('hidden');
+                if (icon) {
+                    icon.classList.toggle('rotate-180');
+                }
+            }
+        }
+
+        function openPayModal(coachName, totalSalary, startDate, endDate, totalMeetings, totalStudents) {
             document.getElementById('modalCoachName').innerText = coachName;
             document.getElementById('modalPeriod').innerText = startDate + ' s/d ' + endDate;
+            document.getElementById('modalTotalMeetings').innerText = totalMeetings;
+            document.getElementById('modalTotalStudents').innerText = totalStudents;
             document.getElementById('modalTotalSalary').innerText = new Intl.NumberFormat('id-ID').format(totalSalary);
             
             @if(isset($coachDebt) && $coachDebt > 0)

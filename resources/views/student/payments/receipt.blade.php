@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuitansi Pembayaran - {{ $transaction->student->name }}</title>
+    <title>Kuitansi Pembayaran - {{ $transaction->student?->name ?? $transaction->manual_student_name ?? 'Murid' }}</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
@@ -66,8 +66,8 @@
             <div class="mb-8 grid grid-cols-3 gap-8">
                 <div>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Diterima Dari</p>
-                    <p class="font-bold text-slate-800">{{ $transaction->student->name }}</p>
-                    <p class="text-sm text-slate-600 mt-1">{{ $transaction->student->school ?? 'Sekolah Tidak Diketahui' }} (Usia: {{ $transaction->student->age ?? '-' }} Tahun)</p>
+                    <p class="font-bold text-slate-800">{{ $transaction->student?->name ?? $transaction->manual_student_name ?? '-' }}</p>
+                    <p class="text-sm text-slate-600 mt-1">{{ $transaction->student?->school ?? 'Sekolah Tidak Diketahui' }} (Usia: {{ $transaction->student?->age ?? '-' }} Tahun)</p>
                 </div>
                 <div>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Paket & Lokasi</p>
@@ -89,14 +89,30 @@
                 </thead>
                 <tbody>
                     <tr class="border-b border-slate-100">
-                        <td class="py-4">
-                            <p class="font-semibold text-slate-800">Paket {{ $transaction->package_type }} Pertemuan</p>
-                            <p class="text-sm text-slate-500 mt-1">Masa aktif: {{ \Carbon\Carbon::parse($transaction->practice_start_date)->format('d M Y') }} s/d {{ \Carbon\Carbon::parse($transaction->practice_start_date)->addMonths(2)->format('d M Y') }}</p>
+                        <td class="py-4 pr-4">
+                            <p class="font-semibold text-slate-800 text-base">Paket {{ $transaction->package_type }} Pertemuan @if($transaction->class_type) ({{ ucfirst($transaction->class_type) }}) @endif</p>
+                            @if($transaction->practice_start_date)
+                                <p class="text-sm text-slate-500 mt-1">Masa aktif: {{ \Carbon\Carbon::parse($transaction->practice_start_date)->format('d M Y') }} s/d {{ \Carbon\Carbon::parse($transaction->practice_start_date)->addMonths(2)->format('d M Y') }}</p>
+                            @endif
+                            @if(!empty($transaction->notes))
+                                <div class="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-700">
+                                    <span class="font-bold text-slate-800 block mb-1">Deskripsi Keterangan:</span>
+                                    <p class="whitespace-pre-line leading-relaxed">{{ $transaction->notes }}</p>
+                                </div>
+                            @endif
                         </td>
-                        <td class="py-4 text-right font-bold text-slate-800">
+                        <td class="py-4 text-right align-top font-bold text-slate-800 text-base whitespace-nowrap">
                             Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                         </td>
                     </tr>
+                    @if($transaction->credit > 0)
+                        <tr class="border-b border-slate-100">
+                            <td class="py-3 text-sm text-slate-500 font-medium">Sisa Tagihan (Belum Lunas)</td>
+                            <td class="py-3 text-right text-sm font-bold text-rose-600">
+                                Rp {{ number_format($transaction->credit, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
 
@@ -108,14 +124,20 @@
                 </div>
                 <div class="text-center">
                     <p class="text-xs text-slate-500 mb-12">Penyetor</p>
-                    <p class="font-bold text-slate-800 border-t border-slate-300 pt-2 px-6 inline-block">{{ $transaction->student->name }}</p>
+                    <p class="font-bold text-slate-800 border-t border-slate-300 pt-2 px-6 inline-block">{{ $transaction->student?->name ?? $transaction->manual_student_name ?? '-' }}</p>
                 </div>
             </div>
 
             <div class="mt-12 pt-6 border-t border-slate-100 text-center">
-                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-                    LUNAS
-                </span>
+                @if($transaction->credit > 0)
+                    <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full border border-amber-200">
+                        BELUM LUNAS (Sisa: Rp {{ number_format($transaction->credit, 0, ',', '.') }})
+                    </span>
+                @else
+                    <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+                        LUNAS
+                    </span>
+                @endif
                 <p class="text-xs text-slate-400 mt-3">Dokumen ini adalah bukti pembayaran yang sah. Harap simpan dengan baik.</p>
             </div>
         </div>

@@ -91,16 +91,33 @@ Route::middleware(['auth', 'role:master'])->group(function () {
 
         // Total Gaji Pelatih bulan ini (berdasarkan reports)
         // Gabungkan training reports yang hadir di bulan ini dan hitung coach_fee dari relasi poolLocation
-        $trainingReports = \App\Models\TrainingReport::with('schedule.poolLocation')
+        $trainingReports = \App\Models\TrainingReport::with([
+            'schedule.poolLocation',
+            'studentAttendances' => function ($q) {
+                $q->where('status', 'Hadir');
+            }
+        ])
             ->where('coach_attendance', 'Hadir')
             ->whereBetween('training_date', [
                 $now->startOfMonth()->format('Y-m-d'), 
                 $now->copy()->endOfMonth()->format('Y-m-d')
             ])->get();
 
-        $coachSalaryExpenses = $trainingReports->sum(function ($report) {
-            return $report->schedule->poolLocation->coach_fee ?? 0;
+        $coachSalaryReports = $trainingReports->sum(function ($report) {
+            $studentCount = $report->studentAttendances->where('status', 'Hadir')->count();
+            return ($report->schedule->poolLocation->coach_fee ?? 0) * $studentCount;
         });
+
+        $trialSalaryExpenses = \App\Models\Trial::with('poolLocation')
+            ->where('status', 'hadir')
+            ->whereBetween('schedule_date', [
+                $now->startOfMonth()->format('Y-m-d'), 
+                $now->copy()->endOfMonth()->format('Y-m-d')
+            ])->get()->sum(function ($trial) {
+                return $trial->poolLocation->coach_fee ?? 0;
+            });
+
+        $coachSalaryExpenses = $coachSalaryReports + $trialSalaryExpenses;
 
         $totalExpenses = $operationalExpenses + $coachSalaryExpenses;
 
@@ -313,6 +330,7 @@ Route::middleware(['auth', 'role:master,admin'])->group(function () {
     
     // Unpaid Students
     Route::get('/finance/unpaid', [\App\Http\Controllers\FinanceController::class, 'unpaid'])->name('finance.unpaid.index');
+    Route::post('/finance/unpaid/{student}/deactivate', [\App\Http\Controllers\FinanceController::class, 'deactivateUnpaid'])->name('finance.unpaid.deactivate');
 
     // Billing
     Route::get('/finance/billing', [\App\Http\Controllers\FinanceController::class, 'billing'])->name('finance.billing.index');

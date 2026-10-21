@@ -277,8 +277,9 @@ class FinanceController extends Controller
 
     public function unpaid(Request $request)
     {
-        // Hanya tampilkan murid yang punya transaksi/riwayat latihan (aktif) namun billing <= 0
-        $query = \App\Models\Student::where('remaining_meetings', '<=', 0)
+        // Hanya tampilkan murid yang aktif dan punya transaksi/riwayat latihan namun billing <= 0
+        $query = \App\Models\Student::where('status', 'aktif')
+            ->where('remaining_meetings', '<=', 0)
             ->whereHas('transactions', function($q) {
                 $q->where('status', 'approved');
             })
@@ -296,6 +297,33 @@ class FinanceController extends Controller
         $students = $query->paginate(15)->withQueryString();
 
         return view('finance.unpaid.index', compact('students'));
+    }
+
+    public function deactivateUnpaid(\App\Models\Student $student)
+    {
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $studentName = $student->name ?? ($student->user->name ?? 'Murid');
+
+            // 1. Tarik dari seluruh jadwal renang
+            $student->schedules()->detach();
+
+            // 2. Tarik dari seluruh kelas renang
+            $student->swimClasses()->detach();
+
+            // 3. Ubah status murid menjadi nonaktif
+            $student->update([
+                'status' => 'nonaktif'
+            ]);
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()->route('finance.unpaid.index')
+                ->with('success', "Murid \"{$studentName}\" telah dinonaktifkan dan ditarik dari seluruh jadwal latihan.");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->with('error', 'Gagal memproses penonaktifan murid: ' . $e->getMessage());
+        }
     }
 
     public function billing(Request $request)

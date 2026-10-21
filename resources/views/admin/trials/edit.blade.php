@@ -116,8 +116,8 @@
                                 <select name="payment_method" id="payment_method" required class="w-full rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500">
                                     <option value="" disabled {{ old('payment_method', $currentMethod) ? '' : 'selected' }}>Pilih Metode</option>
                                     <option value="Tunai/Cash" {{ old('payment_method', $currentMethod) === 'Tunai/Cash' ? 'selected' : '' }}>Tunai / Cash</option>
-                                    <option value="Transfer BCA" {{ old('payment_method', $currentMethod) === 'Transfer BCA' ? 'selected' : '' }}>Transfer BCA</option>
-                                    <option value="Transfer Mandiri" {{ old('payment_method', $currentMethod) === 'Transfer Mandiri' ? 'selected' : '' }}>Transfer Mandiri</option>
+                                    <option value="Transfer BCAS" {{ in_array(old('payment_method', $currentMethod), ['Transfer BCAS', 'Transfer BCA']) ? 'selected' : '' }}>Transfer BCAS</option>
+                                    <option value="Transfer BSI" {{ in_array(old('payment_method', $currentMethod), ['Transfer BSI', 'Transfer Mandiri']) ? 'selected' : '' }}>Transfer BSI</option>
                                     <option value="E-Wallet (OVO/Dana/GoPay)" {{ old('payment_method', $currentMethod) === 'E-Wallet (OVO/Dana/GoPay)' ? 'selected' : '' }}>E-Wallet (OVO/Dana/GoPay)</option>
                                     <option value="Gratis/Free Trial" {{ old('payment_method', $currentMethod) === 'Gratis/Free Trial' ? 'selected' : '' }}>Gratis / Free Trial</option>
                                 </select>
