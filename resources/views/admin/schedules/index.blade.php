@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="py-12 bg-slate-50/50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('success'))
                 <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-r-lg text-emerald-700 font-medium text-sm flex items-center">
                     <i class="fa-solid fa-circle-check mr-3 text-lg"></i>
@@ -22,42 +22,51 @@
                 </div>
             @endif
 
-
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 bg-slate-50/50">
                     <div>
                         <h3 class="text-lg font-bold text-slate-800">Daftar Jadwal Seluruh Pelatih</h3>
                         <p class="text-sm text-slate-500">Assign murid ke jadwal pelatih yang berstatus "Available".</p>
                     </div>
-                    <form method="GET" action="{{ route('admin.schedules.index') }}" class="flex items-center gap-2">
-                        <select name="coach_id" class="rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <form method="GET" action="{{ route('admin.schedules.index') }}" class="flex flex-wrap items-center gap-2">
+                        <select name="coach_id" class="w-full sm:w-auto rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Semua Pelatih</option>
                             @foreach($coaches as $coach)
                                 <option value="{{ $coach->id }}" {{ request('coach_id') == $coach->id ? 'selected' : '' }}>{{ $coach->name }}</option>
                             @endforeach
                         </select>
-                        <select name="day" class="rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="day" class="w-full sm:w-auto rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Semua Hari</option>
                             @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $day)
                                 <option value="{{ $day }}" {{ request('day') == $day ? 'selected' : '' }}>{{ $day }}</option>
                             @endforeach
                         </select>
-                        <select name="pool_location_id" class="rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 max-w-[150px]">
+                        <select name="pool_location_id" class="w-full sm:w-auto rounded-lg border-slate-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 sm:max-w-[150px]">
                             <option value="">Semua Lokasi</option>
                             @foreach($poolLocations as $loc)
                                 <option value="{{ $loc->id }}" {{ request('pool_location_id') == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
                             @endforeach
                         </select>
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Filter</button>
-                        @if(request()->hasAny(['coach_id', 'day', 'pool_location_id']) && (request('coach_id') || request('day') || request('pool_location_id')))
-                            <a href="{{ route('admin.schedules.index') }}" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors">Reset</a>
-                        @endif
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <button type="submit" class="flex-1 sm:flex-initial bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Filter</button>
+                            @if(request()->hasAny(['coach_id', 'day', 'pool_location_id']) && (request('coach_id') || request('day') || request('pool_location_id')))
+                                <a href="{{ route('admin.schedules.index') }}" class="flex-1 sm:flex-initial text-center bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-300 transition-colors">Reset</a>
+                            @endif
+                        </div>
                     </form>
                 </div>
 
-                <div class="p-0">
-                    <table class="min-w-full divide-y divide-slate-200">
+                <!-- Petunjuk geser di HP -->
+                <div class="sm:hidden px-4 py-2 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between text-xs text-blue-700">
+                    <span class="flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-arrows-left-right text-blue-500"></i>
+                        Geser tabel ke samping untuk melihat kolom lengkap
+                    </span>
+                    <i class="fa-solid fa-hand-point-right animate-pulse"></i>
+                </div>
+
+                <div class="p-0 overflow-x-auto w-full">
+                    <table class="w-full min-w-[760px] divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pelatih</th>
@@ -79,7 +88,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <div class="flex flex-col gap-1 items-center justify-center">
-                                            @foreach($group['availabilities'] as $avail)
+                                             @foreach($group['availabilities'] as $avail)
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
                                                     <i class="fa-regular fa-clock mr-1 text-purple-400"></i>
                                                     {{ \Carbon\Carbon::parse($avail->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($avail->end_time)->format('H:i') }}
@@ -114,7 +123,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">
                                         <div class="flex flex-col items-center justify-center">
                                             <i class="fa-regular fa-calendar-xmark text-4xl mb-3 text-slate-300"></i>
                                             <p>Belum ada jadwal pelatih yang tersedia.</p>

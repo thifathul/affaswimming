@@ -118,6 +118,7 @@
                                     <option value="Tunai/Cash" {{ old('payment_method', $currentMethod) === 'Tunai/Cash' ? 'selected' : '' }}>Tunai / Cash</option>
                                     <option value="Transfer BCAS" {{ in_array(old('payment_method', $currentMethod), ['Transfer BCAS', 'Transfer BCA']) ? 'selected' : '' }}>Transfer BCAS</option>
                                     <option value="Transfer BSI" {{ in_array(old('payment_method', $currentMethod), ['Transfer BSI', 'Transfer Mandiri']) ? 'selected' : '' }}>Transfer BSI</option>
+                                    <option value="QRIS" {{ old('payment_method', $currentMethod) === 'QRIS' ? 'selected' : '' }}>QRIS</option>
                                     <option value="E-Wallet (OVO/Dana/GoPay)" {{ old('payment_method', $currentMethod) === 'E-Wallet (OVO/Dana/GoPay)' ? 'selected' : '' }}>E-Wallet (OVO/Dana/GoPay)</option>
                                     <option value="Gratis/Free Trial" {{ old('payment_method', $currentMethod) === 'Gratis/Free Trial' ? 'selected' : '' }}>Gratis / Free Trial</option>
                                 </select>

@@ -76,6 +76,7 @@
                                 <option value="">Semua Metode</option>
                                 <option value="Bank BCAS" {{ request('payment_method') === 'Bank BCAS' ? 'selected' : '' }}>Bank BCAS</option>
                                 <option value="Bank BSI" {{ request('payment_method') === 'Bank BSI' ? 'selected' : '' }}>Bank BSI</option>
+                                <option value="QRIS" {{ request('payment_method') === 'QRIS' ? 'selected' : '' }}>QRIS</option>
                                 <option value="Cash" {{ request('payment_method') === 'Cash' ? 'selected' : '' }}>Cash (Tunai)</option>
                             </select>
                         </div>
@@ -268,6 +269,7 @@
                         <option value="">-- Pilih Metode --</option>
                         <option value="Bank BCAS">Bank BCAS</option>
                         <option value="Bank BSI">Bank BSI</option>
+                        <option value="QRIS">QRIS</option>
                         <option value="Cash">Cash (Tunai)</option>
                     </select>
                 </div>
@@ -466,6 +468,7 @@
                         <option value="">-- Pilih Metode --</option>
                         <option value="Bank BCAS">Bank BCAS</option>
                         <option value="Bank BSI">Bank BSI</option>
+                        <option value="QRIS">QRIS</option>
                         <option value="Cash">Cash (Tunai)</option>
                     </select>
                 </div>

@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="py-12 bg-slate-50/50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('success'))
                 <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-r-lg text-emerald-700 font-medium text-sm flex items-center">
                     <i class="fa-solid fa-circle-check mr-3 text-lg"></i>
@@ -104,8 +104,8 @@
                     </div>
                 </div>
 
-                <div class="p-0 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200">
+                <div class="p-0 overflow-x-auto w-full">
+                    <table class="w-full min-w-[640px] divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Jam Kelas</th>

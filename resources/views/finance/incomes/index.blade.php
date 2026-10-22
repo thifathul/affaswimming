@@ -181,6 +181,7 @@
                                     <option value="">-- Pilih Metode --</option>
                                     <option value="Bank BCAS">Bank BCAS</option>
                                     <option value="Bank BSI">Bank BSI</option>
+                                    <option value="QRIS">QRIS</option>
                                     <option value="Cash">Cash (Tunai)</option>
                                 </select>
                             </div>
@@ -245,6 +246,7 @@
                                     <option value="">-- Pilih Metode --</option>
                                     <option value="Bank BCAS">Bank BCAS</option>
                                     <option value="Bank BSI">Bank BSI</option>
+                                    <option value="QRIS">QRIS</option>
                                     <option value="Cash">Cash (Tunai)</option>
                                 </select>
                             </div>
