@@ -196,9 +196,13 @@
                                                                     Lunas
                                                                 </button>
                                                             @endif
-                                                            <a href="{{ route('student.payments.receipt', $trx->id) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs font-bold">
-                                                                Lihat Kuitansi
+                                                            <a href="{{ route('receipt.public', $trx->id) }}" target="_blank" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition inline-flex items-center gap-1.5" title="Lihat Kuitansi">
+                                                                <i class="fa-solid fa-receipt"></i> Kuitansi
                                                             </a>
+                                                            <button type="button" onclick="copyReceiptLinkDirect('{{ route('receipt.public', $trx->id) }}', this)" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition inline-flex items-center gap-1.5" title="Salin Link Kuitansi Publik untuk dikirim via WA">
+                                                                <i class="fa-regular fa-copy"></i>
+                                                                <span>Salin Link</span>
+                                                            </button>
                                                         @else
                                                             <span class="text-xs text-slate-400">Selesai diproses</span>
                                                         @endif
@@ -394,6 +398,45 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
+        }
+
+        function copyReceiptLinkDirect(url, buttonEl) {
+            function showSuccess() {
+                const originalHtml = buttonEl.innerHTML;
+                buttonEl.innerHTML = '<i class="fa-solid fa-check"></i> <span>Tersalin!</span>';
+                buttonEl.classList.remove('bg-emerald-50', 'text-emerald-700');
+                buttonEl.classList.add('bg-emerald-600', 'text-white');
+                setTimeout(() => {
+                    buttonEl.innerHTML = originalHtml;
+                    buttonEl.classList.remove('bg-emerald-600', 'text-white');
+                    buttonEl.classList.add('bg-emerald-50', 'text-emerald-700');
+                }, 2000);
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(showSuccess).catch(() => {
+                    fallbackCopyPrompt(url, showSuccess);
+                });
+            } else {
+                fallbackCopyPrompt(url, showSuccess);
+            }
+        }
+
+        function fallbackCopyPrompt(text, successCb) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                successCb();
+            } catch (err) {
+                prompt('Salin link kuitansi di bawah ini:', text);
+            }
+            document.body.removeChild(tempInput);
         }
     </script>
 

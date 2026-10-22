@@ -7,6 +7,8 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -33,16 +35,26 @@
 
     <div class="max-w-3xl mx-auto">
         <!-- Controls -->
-        <div class="mb-8 flex justify-between items-center no-print">
-            <button onclick="window.close()" class="text-slate-500 hover:text-slate-800 font-medium text-sm">
+        <div class="mb-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 no-print">
+            <button onclick="window.close()" class="text-slate-500 hover:text-slate-800 font-medium text-sm py-2">
                 &larr; Tutup Jendela
             </button>
-            <div class="flex gap-3">
-                <button onclick="exportToImage()" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm transition">
-                    <i class="fa-solid fa-image mr-2"></i> Simpan Gambar
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="copyReceiptLink()" id="btnCopyLink" class="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-copy"></i>
+                    <span id="btnCopyText">Salin Link</span>
                 </button>
-                <button onclick="window.print()" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-semibold hover:bg-slate-700 shadow-sm transition">
-                    <i class="fa-solid fa-print mr-2"></i> Print PDF
+                <button type="button" onclick="shareToWhatsApp()" class="px-4 py-2.5 bg-green-500 text-white rounded-xl text-sm font-semibold hover:bg-green-600 shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>Kirim ke WA</span>
+                </button>
+                <button onclick="exportToImage()" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Simpan Gambar</span>
+                </button>
+                <button onclick="window.print()" class="px-4 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-semibold hover:bg-slate-700 shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Print PDF</span>
                 </button>
             </div>
         </div>
@@ -146,6 +158,66 @@
     <!-- html2canvas library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
+        const publicReceiptUrl = '{{ route('receipt.public', $transaction->id) }}';
+
+        function copyReceiptLink() {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(publicReceiptUrl).then(() => {
+                    handleCopiedState();
+                }).catch(() => {
+                    fallbackCopy(publicReceiptUrl);
+                });
+            } else {
+                fallbackCopy(publicReceiptUrl);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.focus();
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                handleCopiedState();
+            } catch (err) {
+                prompt('Salin link kuitansi di bawah ini:', text);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        function handleCopiedState() {
+            const btnText = document.getElementById('btnCopyText');
+            const originalText = btnText.textContent;
+            btnText.textContent = 'Link Tersalin!';
+            setTimeout(() => {
+                btnText.textContent = originalText;
+            }, 2500);
+        }
+
+        function shareToWhatsApp() {
+            const studentName = '{{ addslashes($transaction->student?->name ?? $transaction->manual_student_name ?? "Siswa") }}';
+            const packageName = '{{ addslashes($transaction->poolLocation->package_name ?? "Paket Renang") }}';
+            const amount = 'Rp {{ number_format($transaction->amount, 0, ",", ".") }}';
+            const method = '{{ addslashes($transaction->payment_method ?? "Transfer") }}';
+            const status = '{{ $transaction->credit > 0 ? "BELUM LUNAS" : "LUNAS" }}';
+            
+            const message = `Halo Kak ${studentName},\n\nBerikut kuitansi pembayaran resmi AFFA Swimming Academy:\n` +
+                `• No. TRX: TRX-{{ str_pad($transaction->id, 5, "0", STR_PAD_LEFT) }}\n` +
+                `• Paket: ${packageName}\n` +
+                `• Total: ${amount}\n` +
+                `• Metode: ${method}\n` +
+                `• Status: ${status}\n\n` +
+                `Buka / Unduh Kuitansi Resmi:\n${publicReceiptUrl}\n\n` +
+                `Terima kasih!`;
+            
+            const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(message);
+            window.open(waUrl, '_blank');
+        }
+
         function exportToImage() {
             const receiptCard = document.getElementById('receiptCard');
             const originalBorder = receiptCard.style.border;

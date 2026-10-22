@@ -79,4 +79,21 @@ class StudentPaymentController extends Controller
 
         return view('student.payments.receipt', compact('transaction'));
     }
+
+    public function publicReceipt($transaction)
+    {
+        if (!($transaction instanceof Transaction)) {
+            $cleanId = preg_replace('/[^0-9]/', '', (string)$transaction);
+            $transaction = Transaction::with(['student.user', 'poolLocation'])->findOrFail($cleanId);
+        } else {
+            $transaction->loadMissing(['student.user', 'poolLocation']);
+        }
+
+        if ($transaction->status !== 'approved') {
+            abort(404, 'Kuitansi tidak ditemukan atau pembayaran belum disetujui.');
+        }
+
+        $isPublic = true;
+        return view('student.payments.receipt', compact('transaction', 'isPublic'));
+    }
 }

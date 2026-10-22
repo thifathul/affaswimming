@@ -71,6 +71,9 @@ Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
     return response($file, 200)->header('Content-Type', $type);
 })->where('filename', '.*');
 
+// Public Shareable Receipt
+Route::get('/kuitansi/{transaction}', [\App\Http\Controllers\StudentPaymentController::class, 'publicReceipt'])->name('receipt.public');
+
 // Master Dashboard Group
 Route::middleware(['auth', 'role:master'])->group(function () {
     Route::get('/master/dashboard', function () {
